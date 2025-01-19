@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Transaction"
     transaction_mode text COLLATE pg_catalog."default" NOT NULL,
     shared_transaction boolean NOT NULL,
     category uuid NOT NULL,
-    amount integer NOT NULL,
+    amount numeric NOT NULL,
     currency_code integer NOT NULL,
     CONSTRAINT "Transaction_pkey" PRIMARY KEY (id),
     CONSTRAINT "FK_TRANSACTION_COUNTRY__CURRENCY_CODE" FOREIGN KEY (currency_code)
