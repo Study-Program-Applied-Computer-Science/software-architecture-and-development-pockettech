@@ -90,3 +90,24 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Transaction"
         ON UPDATE CASCADE
         ON DELETE CASCADE
 )
+
+DROP TABLE IF EXISTS "FinancePlanner"."Budget";
+
+CREATE TABLE IF NOT EXISTS "FinancePlanner"."Budget"
+(
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    category_id uuid NOT NULL,
+    amount numeric NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    currency_id integer NOT NULL,
+    CONSTRAINT "Budget_pkey" PRIMARY KEY (id),
+    CONSTRAINT "FK_BUDGET_COUNTRY__CURRENCY_ID" FOREIGN KEY (currency_id)
+        REFERENCES "FinancePlanner"."Country" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    CONSTRAINT "FK_BUDGET_USER_TRANSACTION_CATEGORY__CATEGORY_ID" FOREIGN KEY (category_id)
+        REFERENCES "FinancePlanner"."UserTransactionsCategory" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+)
