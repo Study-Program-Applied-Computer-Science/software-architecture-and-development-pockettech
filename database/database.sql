@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."User"
     country_id integer NOT NULL,
     email_id text COLLATE pg_catalog."default" NOT NULL,
     password text COLLATE pg_catalog."default" NOT NULL,
-    phone_code text COLLATE pg_catalog."default" NOT NULL,
     phone_number text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "PK_USER" PRIMARY KEY (id),
     CONSTRAINT "UNIQUE_USER_EMAIL_ID" UNIQUE (email_id),
