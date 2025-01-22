@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."UserTransactionsCategory"
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     category text COLLATE pg_catalog."default" NOT NULL,
+    expense boolean NOT NULL DEFAULT true,
     CONSTRAINT "UserTransactionsCategory_pkey" PRIMARY KEY (id),
     CONSTRAINT "FK_USER_TRANSACTIONS_CATEGORY_USER__USER_ID" FOREIGN KEY (user_id)
         REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
