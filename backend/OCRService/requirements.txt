@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+psycopg2
+sqlalchemy
+pillow
+pytesseract
+python-dotenv
