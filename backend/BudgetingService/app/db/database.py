@@ -1,6 +1,6 @@
 import os
 import sys
-import logging
+# import logging
 
 from dotenv import load_dotenv
 
@@ -9,8 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 load_dotenv()
 

@@ -13,7 +13,7 @@ class CountryCreate(CountryBase):
 
 
 class CountryResponse(CountryBase):
-    id: uuid.UUID
+    id: int
 
     class Config:
         orm_mode = True

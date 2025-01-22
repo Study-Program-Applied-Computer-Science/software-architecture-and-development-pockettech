@@ -1,4 +1,5 @@
 import os
+import uuid
 from fastapi import FastAPI
 import uvicorn
 
@@ -6,11 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import Base, engine
 from app.routes.budget import router as budget_router
-# from app.models import country, budget, transaction, user, userTransactionsCategory
+
 
 Base.metadata.create_all(bind=engine)
 
+
 app = FastAPI()
+
 
 # CORS setup
 origins = ["http://localhost:3000"]  # Update as per frontend origin
@@ -22,21 +25,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Include routers
 app.include_router(budget_router, prefix="/budget", tags=["budget"])
-
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Finance Management API"}
 
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Budgeting Service"}
 
-# @app.get("/budget/{budget_id}")
-# def read_budget(budget_id: int):
-#     return {"budget_id": budget_id, "details": "Budget details would be here"}
+
+@app.get("/{budget_id}")
+def read_budget(budget_id: uuid.UUID):
+    return {"budget_id": budget_id, "details": "Budget details would be here"}
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8001))

@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 from pydantic import BaseModel
 from decimal import Decimal
@@ -9,7 +10,7 @@ class BudgetBase(BaseModel):
     amount: Decimal
     start_date: date
     end_date: date
-    currency_id: uuid.UUID
+    currency_id: int
 
 
 class BudgetCreate(BudgetBase):
@@ -17,13 +18,13 @@ class BudgetCreate(BudgetBase):
 
 
 class BudgetUpdate(BudgetBase):
-    amount: Decimal | None = None
-    start_date: date | None = None
-    end_date: date | None = None
+    pass
 
 
 class BudgetResponse(BudgetBase):
     id: uuid.UUID
+    user_id: uuid.UUID
+    category: str
 
     class Config:
         orm_mode = True

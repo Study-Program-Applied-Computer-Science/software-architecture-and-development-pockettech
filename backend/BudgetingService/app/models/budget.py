@@ -24,6 +24,7 @@ class Budget(Base):
     end_date = Column(Date, nullable=False)
     currency_id = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
 
-    category = relationship("UserTransactionsCategory", back_populates="budgets")
-    currency = relationship("Country", back_populates="budgets")
+    # category = relationship("UserTransactionsCategory", back_populates="budgets")
+    # currency = relationship("Country", back_populates="budgets")
+
 

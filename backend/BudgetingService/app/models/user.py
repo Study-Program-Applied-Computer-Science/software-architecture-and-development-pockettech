@@ -25,6 +25,6 @@ class User(Base):
     phone_code = Column(String, nullable=False)
     phone_number = Column(String, nullable=False)
 
-    country = relationship("Country", back_populates="users")
-    transactions = relationship("Transaction", back_populates="user")
-    user_categories = relationship("UserTransactionsCategory", back_populates="user")
+    # country = relationship("Country", back_populates="users")
+    # transactions = relationship("Transaction", back_populates="user")
+    # user_categories = relationship("UserTransactionsCategory", back_populates="user")

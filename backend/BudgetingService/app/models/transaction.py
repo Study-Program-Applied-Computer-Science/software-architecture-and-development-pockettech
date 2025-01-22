@@ -32,8 +32,8 @@ class Transaction(Base):
     amount = Column(Integer, nullable=False)
     currency_code = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
 
-    recording_user = relationship("User", foreign_keys=[recording_user_id])
-    credit_user = relationship("User", foreign_keys=[credit_user_id])
-    debit_user = relationship("User", foreign_keys=[debit_user_id])
-    category = relationship("UserTransactionsCategory", back_populates="transactions")
-    currency = relationship("Country", back_populates="transactions")
+    # recording_user = relationship("User", foreign_keys=[recording_user_id])
+    # credit_user = relationship("User", foreign_keys=[credit_user_id])
+    # debit_user = relationship("User", foreign_keys=[debit_user_id])
+    # category = relationship("UserTransactionsCategory", back_populates="transactions")
+    # currency = relationship("Country", back_populates="transactions")

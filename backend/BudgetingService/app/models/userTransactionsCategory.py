@@ -21,5 +21,7 @@ class UserTransactionsCategory(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.User.id"), nullable=False)
     category = Column(String, nullable=False)
 
-    user = relationship("User", back_populates="user_categories")
-    transactions = relationship("Transaction", back_populates="category")
+    # user = relationship("User", back_populates="user_categories")
+    # transactions = relationship("Transaction", back_populates="category")
+    # budgets = relationship("Budget", back_populates="category")
+
