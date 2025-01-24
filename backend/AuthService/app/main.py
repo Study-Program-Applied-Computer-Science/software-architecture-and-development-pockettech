@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.routes.auth import router as auth_router
-from app.db.database import Base, engine
-
-Base.metadata.create_all(bind=engine)
+from app.routes.authRoute import router as auth_router
+from app.config import settings
+import uvicorn
 
 app = FastAPI()
 
@@ -19,8 +17,16 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+print("auth service port--------------------------------------------")
 
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to Finance Management API"}
+def root():
+    return {"message": "AuthService is up and running!"}
+
+print("auth service port--------------------------------------------")
+
+# add port to run the service
+
+for route in app.routes:
+    print(route)

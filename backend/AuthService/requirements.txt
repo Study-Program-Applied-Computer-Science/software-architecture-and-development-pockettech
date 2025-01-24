@@ -1,7 +1,11 @@
-bcrypt
 fastapi
-passlib
-psycopg2-binary
-python-dotenv
-SQLAlchemy
 uvicorn
+python-jose
+pydantic
+requests
+python-dotenv
+email-validator
+pyjwt
+passlib
+pydantic-settings
+cryptography
