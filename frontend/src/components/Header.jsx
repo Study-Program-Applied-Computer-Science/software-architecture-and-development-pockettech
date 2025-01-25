@@ -4,21 +4,21 @@ import { FaRegMoon } from "react-icons/fa";
 
 const Header = ({ isDarkMode, themeSwitch }) => {
   return (
-    <header className="dark:bg-gray-800">
-      {/* Button for dark and light mode toggle */}
+    <header
+      className={`absolute top-0 left-0 w-full h-16 ${
+        isDarkMode ? "bg-gray-900" : "bg-blue-50"
+      } flex items-center justify-end pr-4`}
+    >
       <button
-  onClick={themeSwitch}
-  className={`absolute top-4 right-4 flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-    isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-  }`}
->
-  {isDarkMode ? (
-    <FaRegMoon size={20} className="text-white" />
-  ) : (
-    <CiSun size={20} className="text-black" />
-  )}
-</button>
-
+        onClick={themeSwitch}
+        className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+          isDarkMode
+            ? "bg-gray-800 hover:bg-gray-700 text-white"
+            : "bg-blue-200 hover:bg-blue-300 text-blue-600"
+        }`}
+      >
+        {isDarkMode ? <FaRegMoon size={20} /> : <CiSun size={20} />}
+      </button>
     </header>
   );
 };
