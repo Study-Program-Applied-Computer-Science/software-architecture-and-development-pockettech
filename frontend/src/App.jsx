@@ -1,31 +1,40 @@
-import { useState } from 'react'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import Header from "./components/Header";
+import LoginPage from "./pages/LoginPage";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const userTheme = localStorage.getItem('theme');
+  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+  const themeCheck = () => {
+    if (userTheme === 'dark' || (!userTheme && systemTheme === 'dark')) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const themeSwitch = () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
+  };
+
+  useEffect(() => {
+    themeCheck();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-        </a>
-        <a href="https://react.dev" target="_blank">
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <Header isDarkMode={isDarkMode} themeSwitch={themeSwitch} />
+      <LoginPage isDarkMode={isDarkMode} themeSwitch={themeSwitch} />
+    </div>
+  );
+};
 
-export default App
+export default App;
