@@ -18,7 +18,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     # Query the Country table to get the phone_code based on the country_id
     country = db.query(Country).filter(Country.id == user.country_id).first()
-    print("country",country)   
+    
     if not country:
         raise HTTPException(status_code=400, detail="Invalid country_id")
     # Hash the password
@@ -44,10 +44,8 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
 
-    print(login_request)
     user = db.query(User).filter(User.email_id == login_request.email_id).first()
-    
-    print("user",user)
+   
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not verify_password(login_request.password, user.password):
