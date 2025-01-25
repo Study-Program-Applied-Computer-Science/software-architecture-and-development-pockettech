@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoginPage = ({ isDarkMode, themeSwitch }) => {
+const LoginPage = ({ isDarkMode }) => {
   return (
     <div
       className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-blue-50 text-black'}`}
