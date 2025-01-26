@@ -26,7 +26,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth_router, prefix="/user", tags=["register"])
+app.include_router(auth_router, prefix="/api/v1/user", tags=["register"])
 
 @app.get("/")
 def read_root():
