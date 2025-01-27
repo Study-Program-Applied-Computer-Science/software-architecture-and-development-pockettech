@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -28,9 +31,15 @@ const App = () => {
   };
 
   return (
-    <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch}>
-      <LoginPage isDarkMode={isDarkMode} />
-    </Layout>
+    <Router>
+      <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch}>
+        <Routes>
+          <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
+          <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 };
 
