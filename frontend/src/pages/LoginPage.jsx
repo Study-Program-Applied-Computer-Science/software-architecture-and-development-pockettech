@@ -1,88 +1,121 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
+import { loginUser } from "../services/AuthService/authService"; // Assuming loginUser service is defined in a separate file
 
-const LoginPage = ({ isDarkMode }) => {
+export default function LoginPage({ isDarkMode }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const data = await loginUser(email, password);
+      setSuccess("Login successful!");
+      console.log("Response Data:", data);
+      alert("Login successful!");
+      navigate("/dashboard"); // Navigate to the dashboard page on success
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError(err.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-blue-50 text-black'}`}
+      className={`min-h-screen flex items-center justify-center ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+      }`}
     >
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 max-w-sm w-full">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white text-center">
-            Login to Your Account
-          </h1>
-
-          <form className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="email@example.com"
-                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="••••••••"
-                className="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                  Remember me
-                </span>
-              </label>
-              <a
-                href="#"
-                className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-              >
-                Forgot your password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className={`w-full py-2 px-4 rounded-md transition-colors ${
-                isDarkMode
-                  ? "bg-slate-900 text-white hover:bg-slate-700"
-                  : "bg-white text-black hover:bg-gray-300"
+      <div
+        className={`w-full max-w-md p-8 rounded-lg shadow-lg ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+        }`}
+      >
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Login to Your Account
+        </h1>
+        {error && (
+          <div className="text-red-500 text-center mb-4">{error}</div>
+        )}
+        {success && (
+          <div className="text-green-500 text-center mb-4">{success}</div>
+        )}
+        <form onSubmit={handleLogin}>
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium mb-1"
+            >
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
               }`}
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium mb-1"
             >
-              Login
-            </button>
-          </form>
-
-          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-            Don’t have an account?{" "}
-            <a
-              href="#"
-              className="text-blue-600 hover:underline dark:text-blue-400"
-            >
-              Sign up
-            </a>
-          </p>
-        </div>
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`w-full px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-900"
+              }`}
+              placeholder="*******"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className={`w-full py-2 rounded-lg font-medium ${
+              isDarkMode
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <a
+            href="#"
+            className={`${
+              isDarkMode
+                ? "text-blue-400 hover:underline"
+                : "text-blue-600 hover:underline"
+            }`}
+          >
+            Sign up
+          </a>
+        </p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
