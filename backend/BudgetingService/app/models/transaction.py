@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-from sqlalchemy import Column, String, ForeignKey, Integer, Boolean, DateTime
+from sqlalchemy import Column, String, ForeignKey, Integer, Boolean, DateTime, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -29,8 +29,8 @@ class Transaction(Base):
     transaction_mode = Column(String, nullable=False)
     shared_transaction = Column(Boolean, nullable=False)
     category_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.UserTransactionsCategory.id"), nullable=False)
-    amount = Column(Integer, nullable=False)
-    currency_code = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
+    amount = Column(Numeric, nullable=False)
+    currency_code = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
 
     # recording_user = relationship("User", foreign_keys=[recording_user_id])
     # credit_user = relationship("User", foreign_keys=[credit_user_id])

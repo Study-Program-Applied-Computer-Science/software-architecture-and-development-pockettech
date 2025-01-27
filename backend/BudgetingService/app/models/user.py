@@ -2,7 +2,7 @@ import os
 import uuid
 from dotenv import load_dotenv
 
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -19,7 +19,7 @@ class User(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    country_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
+    country_id = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
     email_id = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     phone_code = Column(String, nullable=False)

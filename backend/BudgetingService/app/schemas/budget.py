@@ -1,13 +1,12 @@
 from typing import Optional
 import uuid
 from pydantic import BaseModel
-from decimal import Decimal
 from datetime import date
 
 
 class BudgetBase(BaseModel):
     category_id: uuid.UUID
-    amount: Decimal
+    amount: float
     start_date: date
     end_date: date
     currency_id: int
