@@ -63,10 +63,20 @@ def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Optional[str] = Header(None), request: Request = None):
     print("Request Headers:", request.headers)
+    # Try to get the token from cookies
+    token = request.cookies.get("access_token")
+    
+    # Fall back to the Authorization header if the cookie is not available
+    if not token:
+        token = authorization
+        if not token:
+            raise HTTPException(status_code=401, detail="Token not found")
+    
+    print("Token from frontend:", token)
    
     try:
-        print("token",authorization)
-        user_data = verify_token_via_api(authorization)
+        print("token",token)
+        user_data = verify_token_via_api(token)
         print("user_data",user_data)
         print("user_data: ",user_data["user_id"])
         print("URL ",str(user_id))

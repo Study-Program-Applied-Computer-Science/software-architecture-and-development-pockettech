@@ -6,7 +6,7 @@ from app.config import settings
 app = FastAPI()
 
 # CORS setup
-origins = ["http://localhost:3000"]  # Update as per frontend origin
+origins = ["http://localhost:5173"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

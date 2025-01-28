@@ -18,6 +18,10 @@ def verify_token_via_api(authorization: str):
 
         if not authorization:
             raise HTTPException(status_code=401, detail="Authorization header missing")
+        
+        # Ensure the token starts with 'Bearer'
+        if not authorization.startswith("Bearer "):
+            authorization = f"Bearer {authorization}"
     
 
         try:

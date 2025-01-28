@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends, Header, Response
 import jwt
 from app.utils.jwt_rsa import create_access_token, verify_token
 from app.schemas.auth import LoginRequest
@@ -10,20 +10,20 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 @router.post("/login")
-def login_user(login_request: LoginRequest):
+def login_user(login_request: LoginRequest, response: Response):
     # Call the UserLoginService to validate credential
     print("login_request",login_request)
     print("settings.user_login_service_url",settings.user_login_service_url)
-    response = requests.post(
+    user_service_response = requests.post(
         url=f"{settings.user_login_service_url}",
         json=login_request.model_dump()
     )
     
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Invalid credentials")
+    if user_service_response.status_code != 200:
+        raise HTTPException(status_code=user_service_response.status_code, detail="Invalid credentials")
     
     # Create JWT token
-    user_data = response.json()
+    user_data = user_service_response.json()
 
     user_roles = USER_ROLES
 
@@ -35,8 +35,16 @@ def login_user(login_request: LoginRequest):
 
     token = create_access_token(data=user_payload)
     print("token created with Login",token)
+
+     # Set the token in an HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,    # Prevent JavaScript from accessing the cookie
+        samesite="strict" # Prevent CSRF
+    )
     
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer","id": user_data["id"]}
 
 @router.get("/verifytoken")
 def get_profile(authorization: str = Header(None)):
