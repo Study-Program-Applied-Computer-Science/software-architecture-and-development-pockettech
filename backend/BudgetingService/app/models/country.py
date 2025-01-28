@@ -3,8 +3,6 @@ import uuid
 from dotenv import load_dotenv
 
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
@@ -21,7 +19,3 @@ class Country(Base):
     country = Column(String, nullable=False)
     currency = Column(String, nullable=False)
     phone_code = Column(String, nullable=False, unique=True)
-
-    # Relationships
-    # budgets = relationship("Budget", back_populates="currency")
-    # users = relationship("User", back_populates="country")

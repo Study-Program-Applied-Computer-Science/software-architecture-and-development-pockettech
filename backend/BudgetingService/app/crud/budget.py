@@ -1,9 +1,11 @@
+from datetime import datetime
 import uuid
 
 from sqlalchemy.orm import Session
 
 from app.models.budget import Budget
 from app.models.userTransactionsCategory import UserTransactionsCategory
+from app.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetUpdate
 
 
@@ -17,7 +19,8 @@ def get_all_budgets(db: Session):
         Budget.end_date,
         Budget.currency_id,
         UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category
+        UserTransactionsCategory.category,
+        UserTransactionsCategory.expense
     ).join(
         UserTransactionsCategory,
         Budget.category_id == UserTransactionsCategory.id
@@ -36,7 +39,8 @@ def get_all_budgets_by_user_id(db: Session, user_id: uuid.UUID):
         Budget.end_date,
         Budget.currency_id,
         UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category
+        UserTransactionsCategory.category,
+        UserTransactionsCategory.expense
     ).join(
         UserTransactionsCategory,
         Budget.category_id == UserTransactionsCategory.id
@@ -57,7 +61,8 @@ def get_all_budgets_by_user_id_and_date(db: Session, user_id: uuid.UUID, start_d
         Budget.end_date,
         Budget.currency_id,
         UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category
+        UserTransactionsCategory.category,
+        UserTransactionsCategory.expense
     ).join(
         UserTransactionsCategory,
         Budget.category_id == UserTransactionsCategory.id
@@ -109,3 +114,89 @@ def delete_budget(db: Session, budget_id: uuid.UUID):
     db.delete(db_budget)
     db.commit()
     return db_budget
+
+
+#get all transactions by user_id, category_id, start_date, end_date of all budgets that fall within the date range
+#TODO: need to call transaction data from the transaction service
+def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.UUID, start_date, end_date):
+    budgets_query = db.query(
+        Budget.id,
+        Budget.category_id,
+        Budget.amount,
+        Budget.start_date,
+        Budget.end_date,
+        Budget.currency_id,
+        UserTransactionsCategory.user_id,
+        UserTransactionsCategory.category,
+        UserTransactionsCategory.expense
+    ).join(
+        UserTransactionsCategory,
+        Budget.category_id == UserTransactionsCategory.id
+    ).filter(
+        UserTransactionsCategory.user_id == user_id,
+        (Budget.start_date <= start_date) & (Budget.end_date >= end_date)
+    )
+    budgets = budgets_query.all()
+    budgets_transactions = []
+    for budget in budgets:
+        transactions_query = db.query(
+            Transaction.id,
+            Transaction.timestamp,
+            Transaction.recording_user_id,
+            Transaction.credit_user_id,
+            Transaction.debit_user_id,
+            Transaction.other_party,
+            Transaction.heading,
+            Transaction.description,
+            Transaction.transaction_mode,
+            Transaction.shared_transaction,
+            Transaction.category,
+            Transaction.amount,
+            Transaction.currency_code
+        ).filter(
+            Transaction.category == budget.category_id,
+            (Transaction.timestamp >= start_date) & (Transaction.timestamp <= end_date)
+        )
+        transactions = transactions_query.all()
+        transactions_list = []
+        total_amount = 0.0
+        for transaction in transactions:
+            transactions_list.append({
+                "transaction_id": transaction.id,
+                "timestamp": transaction.timestamp,
+                "recording_user_id": transaction.recording_user_id,
+                "credit_user_id": transaction.credit_user_id or None,
+                "debit_user_id": transaction.debit_user_id or None,
+                "other_party": transaction.other_party or None,
+                "heading": transaction.heading,
+                "description": transaction.description or None,
+                "transaction_mode": transaction.transaction_mode,
+                "shared_transaction": transaction.shared_transaction,
+                "category_id": transaction.category,
+                "amount": float(transaction.amount),
+                "currency_code": transaction.currency_code
+            })
+            if UserTransactionsCategory.expense:
+                if transaction.debit_user_id == user_id:
+                    total_amount += float(transaction.amount)
+                if transaction.credit_user_id == user_id:
+                    total_amount -= float(transaction.amount)
+            else:
+                if transaction.credit_user_id == user_id:
+                    total_amount += float(transaction.amount)
+                if transaction.debit_user_id == user_id:
+                    total_amount -= float(transaction.amount)
+        budgets_transactions.append({
+            "category_id": budget.category_id,
+            "amount": float(budget.amount),
+            "start_date": budget.start_date,
+            "end_date": budget.end_date,
+            "currency_id": budget.currency_id,
+            "id": budget.id,
+            "user_id": budget.user_id,
+            "category": budget.category,
+            "expense": budget.expense,
+            "transactions": transactions_list,
+            "total_amount": total_amount
+        })
+    return budgets_transactions

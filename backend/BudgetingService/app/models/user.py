@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 from sqlalchemy import Column, String, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
@@ -24,7 +23,3 @@ class User(Base):
     password = Column(String, nullable=False)
     phone_code = Column(String, nullable=False)
     phone_number = Column(String, nullable=False)
-
-    # country = relationship("Country", back_populates="users")
-    # transactions = relationship("Transaction", back_populates="user")
-    # user_categories = relationship("UserTransactionsCategory", back_populates="user")

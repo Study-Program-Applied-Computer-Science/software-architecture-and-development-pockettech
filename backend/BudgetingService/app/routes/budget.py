@@ -2,10 +2,10 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.budget import BudgetCreate, BudgetResponse, BudgetUpdate
 
+from app.schemas.budget import BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
 from app.db.database import get_db
-from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, update_budget
+from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_transactions_by_user_id_and_date_budgets, update_budget
 
 
 router = APIRouter()
@@ -60,3 +60,12 @@ def delete_budget_route(id: uuid.UUID, db: Session = Depends(get_db)):
         return delete_budget(db, id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+#route for get_all_transactions_by_user_id_and_date_budgets
+@router.get("/allbudgets/{user_id}/{start_date}/{end_date}", response_model=list[Budgets])
+def get_all_transactions_by_user_id_and_date_budgets_route(user_id: uuid.UUID, start_date, end_date, db: Session = Depends(get_db)):
+    budgets = get_all_transactions_by_user_id_and_date_budgets(db, user_id, start_date, end_date)
+    if not budgets:
+        raise HTTPException(status_code=404, detail="Budgets not found for this user and date range")
+    return budgets

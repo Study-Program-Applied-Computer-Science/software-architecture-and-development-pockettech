@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 from sqlalchemy import Column, ForeignKey, Numeric, Date
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
@@ -23,8 +22,4 @@ class Budget(Base):
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
     currency_id = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
-
-    # category = relationship("UserTransactionsCategory", back_populates="budgets")
-    # currency = relationship("Country", back_populates="budgets")
-
 
