@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Country"
     phone_code text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "Country_pkey" PRIMARY KEY (id),
     CONSTRAINT "UNIQUE_COUNTRY_PHONE_CODE" UNIQUE (phone_code)
-)
+);
 
 DROP TABLE IF EXISTS "FinancePlanner"."User";
 
@@ -29,12 +29,8 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."User"
     CONSTRAINT "FK_USER_COUNTRY_COUNTRY_ID" FOREIGN KEY (country_id)
         REFERENCES "FinancePlanner"."Country" (id) MATCH SIMPLE
         ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    CONSTRAINT "FK_USER_COUNTRY_PHONE_CODE" FOREIGN KEY (phone_code)
-        REFERENCES "FinancePlanner"."Country" (phone_code) MATCH SIMPLE
-        ON UPDATE CASCADE
         ON DELETE RESTRICT
-)
+);
 
 DROP TABLE IF EXISTS "FinancePlanner"."UserTransactionsCategory";
 
@@ -43,12 +39,13 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."UserTransactionsCategory"
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     category text COLLATE pg_catalog."default" NOT NULL,
+    expense boolean NOT NULL DEFAULT true,
     CONSTRAINT "UserTransactionsCategory_pkey" PRIMARY KEY (id),
     CONSTRAINT "FK_USER_TRANSACTIONS_CATEGORY_USER__USER_ID" FOREIGN KEY (user_id)
         REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
-)
+);
 
 DROP TABLE IF EXISTS "FinancePlanner"."Transaction";
 
@@ -88,4 +85,4 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Transaction"
         REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
-)
+);

@@ -2,6 +2,7 @@ import os
 import uuid
 from fastapi import FastAPI
 import uvicorn
+from app.routers.transactions import router as transaction_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,7 +28,7 @@ app.add_middleware(
 
 
 # Include routers
-# app.include_router(budget_router, prefix="/budget", tags=["budget"])
+app.include_router(transaction_router, prefix="/transactions", tags=["transactions"])
 
 
 @app.get("/")
