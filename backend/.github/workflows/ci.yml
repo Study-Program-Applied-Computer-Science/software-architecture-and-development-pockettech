@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - jyoti/feature/user-login
+  pull_request:
+    branches:
+      - jyoti/feature/user-login
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    # Set up environment variables
+    - name: Set environment variables
+      run: |
+        echo "${{ secrets.AUTH_SERVICE_ENV }}" > ./AuthService/.env
+        echo "${{ secrets.USER_LOGIN_SERVICE_ENV }}" > ./UserLoginService/.env
+
+    # Install Docker
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    # Build and Test AuthService
+    - name: Build AuthService
+      run: |
+        docker build -t auth_service ./AuthService
+    - name: Run AuthService Tests
+      run: |
+        docker run --rm --env-file ./AuthService/.env auth_service pytest
+
+    # Build and Test UserLoginService
+    - name: Build UserLoginService
+      run: |
+        docker build -t user_login_service ./UserLoginService
+    - name: Run UserLoginService Tests
+      run: |
+        docker run --rm --env-file ./UserLoginService/.env user_login_service pytest
+
+    # Run Linting (Optional)
+    - name: Lint Code
+      run: |
+        pip install flake8
+        flake8 ./AuthService ./UserLoginService --count --select=E9,F63,F7,F82 --show-source --statistics
