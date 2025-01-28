@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  user_login_service:
+  transaction_analysis_service:
     build:
-      context: ./UserLoginService
-    container_name: user_login_service
+      context: ./TransactionAnalysisService
+    container_name: transaction_analysis_service
     ports:
-      - "8002:8002"
+      - "8003:8003"
     env_file:
-      - ./UserLoginService/.env
+      - ./TransactionAnalysisService/.env
     volumes:
-      - ./UserLoginService:/app
+      - ./TransactionAnalysisService:/app
     depends_on:
       - db
 
