@@ -16,7 +16,7 @@ User.__table__.create(bind=engine, checkfirst=True)
 app = FastAPI()
 
 # CORS setup
-frontend_origin = ["http://localhost:3000"]  # Update as per frontend origin
+frontend_origin = ["http://localhost:5173"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=frontend_origin,
