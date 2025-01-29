@@ -32,12 +32,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # Move into the backend folder
+    - name: Change working directory to backend
+      run: cd backend
+
     # Set up Private and Public Keys
     - name: Setup Private and Public Keys
       run: |
-        mkdir -p ./AuthService/app/keys
-        echo "${{ secrets.PRIVATE_KEY_B64 }}" | base64 --decode > ./AuthService/app/keys/private_key.pem
-        echo "${{ secrets.PUBLIC_KEY_B64 }}" | base64 --decode > ./AuthService/app/keys/public_key.pem
+        mkdir -p backend/AuthService/app/keys
+        echo "${{ secrets.PRIVATE_KEY_B64 }}" | base64 --decode > backend/AuthService/app/keys/private_key.pem
+        echo "${{ secrets.PUBLIC_KEY_B64 }}" | base64 --decode > backend/AuthService/app/keys/public_key.pem
 
 
     # Set up Python environment
@@ -49,8 +53,8 @@ jobs:
     # Set up environment variables
     - name: Set environment variables
       run: |
-        echo "${{ secrets.AUTH_SERVICE_ENV }}" > ./AuthService/.env
-        echo "${{ secrets.USER_LOGIN_SERVICE_ENV }}" > ./UserLoginService/.env
+        echo "${{ secrets.AUTH_SERVICE_ENV }}" > backend/AuthService/.env
+        echo "${{ secrets.USER_LOGIN_SERVICE_ENV }}" > backend/UserLoginService/.env
 
     # Install Docker
     - name: Set up Docker
@@ -59,21 +63,21 @@ jobs:
     # Build and Test AuthService
     - name: Build AuthService
       run: |
-        docker build -t auth_service ./AuthService
+        docker build -t auth_service backend/AuthService
     - name: Run AuthService Tests
       run: |
-        docker run --rm --env-file ./AuthService/.env auth_service pytest
+        docker run --rm --env-file backend/AuthService/.env auth_service pytest
 
     # Build and Test UserLoginService
     - name: Build UserLoginService
       run: |
-        docker build -t user_login_service ./UserLoginService
+        docker build -t user_login_service backend/UserLoginService
     - name: Run UserLoginService Tests
       run: |
-        docker run --rm --env-file ./UserLoginService/.env user_login_service pytest
+        docker run --rm --env-file backend/UserLoginService/.env user_login_service pytest
 
     # Run Linting (Optional)
     - name: Lint Code
       run: |
         pip install flake8
-        flake8 ./AuthService ./UserLoginService --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 backend/AuthService backend/UserLoginService --count --select=E9,F63,F7,F82 --show-source --statistics
