@@ -16,9 +16,9 @@ class SharedGroupParticipants(Base):
     participant_user_id = Column(UUID, ForeignKey("FinancePlanner.User.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
 
     # Relationships
-    group = relationship("SharedGroup", back_populates="participants", lazy="joined")
-    participant_user = relationship("User", back_populates="participated_groups", lazy="select")
+#     group = relationship("SharedGroup", back_populates="participants", lazy="joined")
+#     participant_user = relationship("User", back_populates="participated_groups", lazy="select")
 
-# Define back_populates in SharedGroup and User models (if not already defined)
-SharedGroup.participants = relationship("SharedGroupParticipants", back_populates="group")
-User.participated_groups = relationship("SharedGroupParticipants", back_populates="participant_user")
+# # Define back_populates in SharedGroup and User models (if not already defined)
+# SharedGroup.participants = relationship("SharedGroupParticipants", back_populates="group")
+# User.participated_groups = relationship("SharedGroupParticipants", back_populates="participant_user")

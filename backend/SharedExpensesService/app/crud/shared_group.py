@@ -39,6 +39,13 @@ def update_shared_group(db: Session, group_id: UUID, updated_data: SharedGroupCr
     db.refresh(group)
     return group
 
+def delete_shared_group(db: Session, group_id: UUID):
+    group = db.query(SharedGroup).filter(SharedGroup.id == group_id).first()
+    if not group:
+        return None
+    db.delete(group)
+    db.commit()
+    return group
 
 
 

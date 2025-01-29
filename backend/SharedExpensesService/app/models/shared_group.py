@@ -11,12 +11,12 @@ class SharedGroup(Base):
     __table_args__ = {"schema": "FinancePlanner"}  # Specify the schema
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    admin_user_id = Column(UUID, ForeignKey("FinancePlanner.User.id", onupdate="CASCADE", ondelete="RESTRICT"), nullable=False)
+    admin_user_id = Column(UUID, ForeignKey("FinancePlanner.User.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     group_name = Column(Text, nullable=False)
 
-    # Relationships
-    admin_user = relationship("User", back_populates="admin_groups", lazy="select")  # Link to User model
-    participants = relationship("SharedGroupParticipants", back_populates="group", lazy="select")
+#     # Relationships
+#     admin_user = relationship("User", back_populates="admin_groups", lazy="select")  # Link to User model
+#     participants = relationship("SharedGroupParticipants", back_populates="group", lazy="select")
 
-# Define back_populates in the User model (if not already defined)
-User.admin_groups = relationship("SharedGroup", back_populates="admin_user")
+# # Define back_populates in the User model (if not already defined)
+# User.admin_groups = relationship("SharedGroup", back_populates="admin_user")

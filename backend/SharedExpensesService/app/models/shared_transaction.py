@@ -26,12 +26,12 @@ class SharedTransaction(Base):
     payment_status = Column(Integer, ForeignKey("PaymentStatus.id", onupdate="CASCADE", ondelete="RESTRICT"), nullable=False)
     
     # Relationships
-    share_type = relationship("ShareType")
-    payment_status_rel = relationship("PaymentStatus")
+    # share_type = relationship("ShareType")
+    # payment_status_rel = relationship("PaymentStatus")
     
-    # Relationships to SharedGroupParticipants for main and sub group users
-    main_group_user = relationship("SharedGroupParticipants", foreign_keys=[group_user_id_main])
-    sub_group_user = relationship("SharedGroupParticipants", foreign_keys=[group_user_id_sub])
+    # # Relationships to SharedGroupParticipants for main and sub group users
+    # main_group_user = relationship("SharedGroupParticipants", foreign_keys=[group_user_id_main])
+    # sub_group_user = relationship("SharedGroupParticipants", foreign_keys=[group_user_id_sub])
 
 # Optional: Define back_populates if needed in this microservice
 # Transaction.shared_transactions = relationship("SharedTransaction", back_populates="transaction")

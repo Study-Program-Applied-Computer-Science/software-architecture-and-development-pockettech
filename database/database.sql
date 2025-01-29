@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroup" (
     CONSTRAINT "SharedGroup_pkey" PRIMARY KEY (id),
     CONSTRAINT "FK_SharedGroup_User_Admin" FOREIGN KEY (admin_user_id)
         REFERENCES "FinancePlanner"."User" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT
+        ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroupParticipants" (

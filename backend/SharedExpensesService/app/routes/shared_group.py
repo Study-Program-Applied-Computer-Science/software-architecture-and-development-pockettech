@@ -40,3 +40,10 @@ def update_shared_group(group_id: UUID, group_data: SharedGroupCreate, db: Sessi
     if not updated_group:
         raise HTTPException(status_code=404, detail="Group not found")
     return updated_group
+
+@router.delete("/{group_id}", response_model=SharedGroup)
+def delete_shared_group(group_id: UUID, db: Session = Depends(get_db)):
+    group = shared_group_crud.delete_shared_group(db, group_id)
+    if not group:
+        raise HTTPException(status_code=404, detail="Group not found")
+    return group
