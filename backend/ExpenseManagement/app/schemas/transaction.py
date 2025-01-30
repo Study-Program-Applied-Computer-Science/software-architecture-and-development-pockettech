@@ -1,7 +1,7 @@
 import uuid
 from pydantic import BaseModel
 from datetime import datetime
-from lance import Optional
+from typing import Optional
 
 class TransactionBase(BaseModel):
     recording_user_id: uuid.UUID
@@ -17,6 +17,11 @@ class TransactionBase(BaseModel):
     currency_code: int
 
 class TransactionCreate(TransactionBase):
+    pass
+
+class TransactionUpdate(TransactionBase):
+    id: uuid.UUID
+    timestamp: datetime
     pass
 
 class TransactionResponse(TransactionBase):
