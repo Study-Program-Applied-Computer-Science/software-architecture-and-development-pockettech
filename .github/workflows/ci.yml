@@ -67,6 +67,9 @@ jobs:
     - name: Build AuthService
       run: |
         docker build -t auth_service backend/AuthService
+    - name: Debug AuthService Container
+      run: |
+        docker run --rm auth_service ls -R /app
     - name: Run AuthService Tests
       run: |
         docker run --rm --env-file backend/AuthService/.env auth_service pytest /tests --disable-warnings
