@@ -43,7 +43,7 @@ def read_transactions_by_user_id_date(user_id: uuid.UUID, start_date, end_date, 
     return db_transactions
 
 @router.get("user/{user_id}/category/{category}/date", response_model=list[transaction.TransactionResponse])
-def read_transactions_by_category_id(user_id: uuid.UUID, category_id: uuid.UUID, start_date, end_date, db: Session = Depends(get_db)):
+def read_transactions_by_category_id(user_id: uuid.UUID, category_id: int, start_date, end_date, db: Session = Depends(get_db)):
     db_transactions = get_transaction_by_category_id(db, user_id, category_id, start_date, end_date)
     if db_transactions is None or len(db_transactions) == 0:
         raise HTTPException(status_code=404, detail="No transactions found for this user")

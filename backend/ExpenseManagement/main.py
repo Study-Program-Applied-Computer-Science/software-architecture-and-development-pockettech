@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # CORS setup
-origins = ["http://localhost:3000"]  # Update as per frontend origin
+origins = ["http://localhost:5174"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

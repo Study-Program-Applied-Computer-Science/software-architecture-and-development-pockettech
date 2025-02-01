@@ -12,7 +12,7 @@ class TransactionBase(BaseModel):
     description: Optional[str] = None
     transaction_mode: str
     shared_transaction: bool
-    category: uuid.UUID
+    category: int
     amount: float
     currency_code: int
 

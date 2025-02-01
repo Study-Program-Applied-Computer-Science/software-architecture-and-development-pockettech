@@ -6,15 +6,15 @@ from sqlalchemy.orm import Session
 from app.models.transaction import Transaction as TransactionModel
 from app.models.country import Country as CountryModel
 from app.models.user import User as UserModel
-from app.models.userTransactionsCategory import UserTransactionsCategory as UserTransactionsCategoryModel
+from app.models.transactionsCategory import TransactionsCategory as TransactionsCategoryModel
 
 # 2. Import your Pydantic schemas
 from app.schemas.transaction import TransactionCreate, TransactionResponse, TransactionUpdate
 from app.schemas.country import CountryCreate, CountryResponse
 from app.schemas.user import UserCreate, UserUpdate, UserResponse
-from app.schemas.userTransactionsCategory import (
-    UserTransactionsCategoryCreate,
-    UserTransactionsCategoryResponse,
+from app.schemas.transactionsCategory import (
+    TransactionsCategoryCreate,
+    TransactionsCategoryResponse,
 )
 # ---------------------------------------------------------------------------------
 # TRANSACTION CRUD
@@ -49,7 +49,7 @@ def get_transaction_by_user_id_date(db: Session, user_id: uuid.UUID, start_date,
         TransactionModel.timestamp <= end_date
     ).all()
 
-def get_transaction_by_category_id(db: Session, user_id: uuid.UUID, category_id: uuid.UUID, start_date, end_date) -> list[TransactionModel]:
+def get_transaction_by_category_id(db: Session, user_id: uuid.UUID, category_id: int, start_date, end_date) -> list[TransactionModel]:
     """Retrieve all transactions by a user."""
     return db.query(TransactionModel).filter(
         and_(
@@ -105,21 +105,21 @@ def delete_transaction(db: Session, transaction_id: uuid.UUID) -> TransactionMod
 
 
 # # ---------------------------------------------------------------------------------
-# # USER TRANSACTIONS CATEGORY CRUD
+# # TRANSACTIONS CATEGORY CRUD
 # # ---------------------------------------------------------------------------------
-# def create_user_transactions_category(db: Session, category_in: UserTransactionsCategoryCreate) -> UserTransactionsCategoryModel:
-#     """Create a user transactions category record."""
-#     db_category = UserTransactionsCategoryModel(**category_in.dict())
+# def create_transactions_category(db: Session, category_in: TransactionsCategoryCreate) -> TransactionsCategoryModel:
+#     """Create a transactions category record."""
+#     db_category = TransactionsCategoryModel(**category_in.dict())
 #     db.add(db_category)
 #     db.commit()
 #     db.refresh(db_category)
 #     return db_category
 
-# def get_user_transactions_categories(db: Session) -> list[UserTransactionsCategoryModel]:
+# def get_user_transactions_categories(db: Session) -> list[TransactionsCategoryModel]:
 #     """Retrieve all user transaction categories."""
-#     return db.query(UserTransactionsCategoryModel).all()
+#     return db.query(TransactionsCategoryModel).all()
 
-# def get_user_transactions_category_by_id(db: Session, category_id: uuid.UUID) -> UserTransactionsCategoryModel | None:
+# def get_user_transactions_category_by_id(db: Session, category_id: uuid.UUID) -> TransactionsCategoryModel | None:
 #     """Retrieve a single user transaction category by its ID."""
-#     return db.query(UserTransactionsCategoryModel).filter(UserTransactionsCategoryModel.id == category_id).first()
+#     return db.query(TransactionsCategoryModel).filter(TransactionsCategoryModel.id == category_id).first()
  

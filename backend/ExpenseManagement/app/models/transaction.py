@@ -27,6 +27,6 @@ class Transaction(Base):
     description = Column(String)
     transaction_mode = Column(String, nullable=False)
     shared_transaction = Column(Boolean, nullable=False)
-    category = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.UserTransactionsCategory.id"), nullable=False)
+    category = Column(ForeignKey(f"{DB_SCHEMA}.TransactionsCategory.id"), nullable=False)
     amount = Column(Numeric, nullable=False)
     currency_code = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
