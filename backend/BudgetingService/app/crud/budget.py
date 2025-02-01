@@ -1,10 +1,10 @@
-from datetime import datetime
 import uuid
 
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from app.models.budget import Budget
-from app.models.userTransactionsCategory import UserTransactionsCategory
+from app.models.transactionsCategory import TransactionsCategory
 from app.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetUpdate
 
@@ -13,17 +13,17 @@ from app.schemas.budget import BudgetCreate, BudgetUpdate
 def get_all_budgets(db: Session):
     query = db.query(
         Budget.id,
+        Budget.user_id,
         Budget.category_id,
         Budget.amount,
         Budget.start_date,
         Budget.end_date,
         Budget.currency_id,
-        UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category,
-        UserTransactionsCategory.expense
+        TransactionsCategory.category,
+        TransactionsCategory.expense
     ).join(
-        UserTransactionsCategory,
-        Budget.category_id == UserTransactionsCategory.id
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
     )
 
     return query.all()
@@ -33,19 +33,19 @@ def get_all_budgets(db: Session):
 def get_all_budgets_by_user_id(db: Session, user_id: uuid.UUID):
     query = db.query(
         Budget.id,
+        Budget.user_id,
         Budget.category_id,
         Budget.amount,
         Budget.start_date,
         Budget.end_date,
         Budget.currency_id,
-        UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category,
-        UserTransactionsCategory.expense
+        TransactionsCategory.category,
+        TransactionsCategory.expense
     ).join(
-        UserTransactionsCategory,
-        Budget.category_id == UserTransactionsCategory.id
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
     ).filter(
-        UserTransactionsCategory.user_id == user_id
+        Budget.user_id == user_id
     )
 
     return query.all()
@@ -55,19 +55,19 @@ def get_all_budgets_by_user_id(db: Session, user_id: uuid.UUID):
 def get_all_budgets_by_user_id_and_date(db: Session, user_id: uuid.UUID, start_date, end_date):
     query = db.query(
         Budget.id,
+        Budget.user_id,
         Budget.category_id,
         Budget.amount,
         Budget.start_date,
         Budget.end_date,
         Budget.currency_id,
-        UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category,
-        UserTransactionsCategory.expense
+        TransactionsCategory.category,
+        TransactionsCategory.expense
     ).join(
-        UserTransactionsCategory,
-        Budget.category_id == UserTransactionsCategory.id
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
     ).filter(
-        UserTransactionsCategory.user_id == user_id,
+        Budget.user_id == user_id,
         Budget.start_date <= start_date,
         Budget.end_date >= end_date
     )
@@ -78,6 +78,7 @@ def get_all_budgets_by_user_id_and_date(db: Session, user_id: uuid.UUID, start_d
 #create a budget
 def create_budget(db: Session, budget: BudgetCreate):
     db_budget = Budget(
+        user_id=budget.user_id,
         category_id=budget.category_id,
         amount=budget.amount,
         start_date=budget.start_date,
@@ -121,19 +122,19 @@ def delete_budget(db: Session, budget_id: uuid.UUID):
 def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.UUID, start_date, end_date):
     budgets_query = db.query(
         Budget.id,
+        Budget.user_id,
         Budget.category_id,
         Budget.amount,
         Budget.start_date,
         Budget.end_date,
         Budget.currency_id,
-        UserTransactionsCategory.user_id,
-        UserTransactionsCategory.category,
-        UserTransactionsCategory.expense
+        TransactionsCategory.category,
+        TransactionsCategory.expense
     ).join(
-        UserTransactionsCategory,
-        Budget.category_id == UserTransactionsCategory.id
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
     ).filter(
-        UserTransactionsCategory.user_id == user_id,
+        Budget.user_id == user_id,
         (Budget.start_date <= start_date) & (Budget.end_date >= end_date)
     )
     budgets = budgets_query.all()
@@ -154,8 +155,15 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
             Transaction.amount,
             Transaction.currency_code
         ).filter(
-            Transaction.category == budget.category_id,
-            (Transaction.timestamp >= start_date) & (Transaction.timestamp <= end_date)
+            and_(
+                Transaction.category == budget.category_id,
+                or_(
+                    Transaction.debit_user_id == user_id,
+                    Transaction.credit_user_id == user_id
+                ),
+                Transaction.timestamp >= start_date,
+                Transaction.timestamp <= end_date
+            )
         )
         transactions = transactions_query.all()
         transactions_list = []
@@ -176,7 +184,7 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
                 "amount": float(transaction.amount),
                 "currency_code": transaction.currency_code
             })
-            if UserTransactionsCategory.expense:
+            if budget.expense:
                 if transaction.debit_user_id == user_id:
                     total_amount += float(transaction.amount)
                 if transaction.credit_user_id == user_id:

@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.schemas.budget import BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
+from app.schemas.budget import BudgetBaseResponse, BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
 from app.db.database import get_db
 from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_transactions_by_user_id_and_date_budgets, update_budget
 
@@ -36,7 +36,7 @@ def get_all_budgets_by_user_id_and_date_route(user_id: uuid.UUID, start_date, en
 
 
 #create a budget
-@router.post("/", response_model=BudgetCreate)
+@router.post("/", response_model=BudgetBaseResponse)
 def create_budget_route(budget: BudgetCreate, db: Session = Depends(get_db)):
     try:
         return create_budget(db, budget)
@@ -45,8 +45,8 @@ def create_budget_route(budget: BudgetCreate, db: Session = Depends(get_db)):
 
 
 #update a budget
-@router.put("/{id}", response_model=BudgetUpdate)
-def update_budget_route(id: uuid.UUID, budget: BudgetUpdate, db: Session = Depends(get_db)):
+@router.put("/{id}", response_model=BudgetBaseResponse)
+def update_budget_route(id: uuid.UUID, budget: BudgetBaseResponse, db: Session = Depends(get_db)):
     try:
         return update_budget(db, id, budget)
     except Exception as e:
@@ -63,7 +63,7 @@ def delete_budget_route(id: uuid.UUID, db: Session = Depends(get_db)):
     
 
 #route for get_all_transactions_by_user_id_and_date_budgets
-@router.get("/allbudgets/{user_id}/{start_date}/{end_date}", response_model=list[Budgets])
+@router.get("/alltransactions/{user_id}/{start_date}/{end_date}", response_model=list[Budgets])
 def get_all_transactions_by_user_id_and_date_budgets_route(user_id: uuid.UUID, start_date, end_date, db: Session = Depends(get_db)):
     budgets = get_all_transactions_by_user_id_and_date_budgets(db, user_id, start_date, end_date)
     if not budgets:

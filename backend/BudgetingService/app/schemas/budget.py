@@ -5,7 +5,8 @@ from datetime import date, datetime
 
 
 class BudgetBase(BaseModel):
-    category_id: uuid.UUID
+    user_id: uuid.UUID
+    category_id: int
     amount: float
     start_date: date
     end_date: date
@@ -20,9 +21,15 @@ class BudgetUpdate(BudgetBase):
     pass
 
 
+class BudgetBaseResponse(BudgetBase):
+    id: uuid.UUID
+
+    class Config:
+        orm_mode = True
+        
+
 class BudgetResponse(BudgetBase):
     id: uuid.UUID
-    user_id: uuid.UUID
     category: str
     expense: bool
 
@@ -41,7 +48,7 @@ class Transaction(BaseModel):
     description: Optional[str]
     transaction_mode: str
     shared_transaction: bool
-    category_id: uuid.UUID
+    category_id: int
     amount: float
     currency_code: int
 
