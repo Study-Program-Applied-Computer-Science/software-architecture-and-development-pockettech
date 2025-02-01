@@ -2,7 +2,7 @@ import os
 import uuid
 from dotenv import load_dotenv
 
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 

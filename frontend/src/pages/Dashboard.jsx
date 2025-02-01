@@ -1,6 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchLastTransactions } from "../services/TransactionAnalysisService/TransactionAnalysisService"; // Import the service
+
 
 export default function Dashboard({ isDarkMode }) {
+  const [transactions, setTransactions] = useState([]);
+
+  // Fetch the transactions data on component mount
+  useEffect(() => {
+    const getTransactions = async () => {
+      try {
+        const data = await fetchLastTransactions();
+        setTransactions(data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    getTransactions();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Sidebar */}
@@ -102,31 +119,51 @@ export default function Dashboard({ isDarkMode }) {
           </div>
 
           {/* Transactions */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Latest Transactions</h2>
-            <div className="bg-white rounded-lg shadow-lg p-4">
-              <table className="table-auto w-full text-left">
-                <thead>
-                  <tr className="bg-gray-100 text-gray-600">
-                    <th className="px-4 py-2">Name</th>
-                    <th className="px-4 py-2">Amount</th>
-                    <th className="px-4 py-2">Date</th>
-                    <th className="px-4 py-2">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t">
-                    <td className="px-4 py-2">Samantha W.</td>
-                    <td className="px-4 py-2">$50,036</td>
-                    <td className="px-4 py-2">Jan 25, 2021</td>
-                    <td className="px-4 py-2 text-green-500">Completed</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="px-4 py-2">Karen Hope</td>
-                    <td className="px-4 py-2">$10,500</td>
-                    <td className="px-4 py-2">Jan 22, 2021</td>
-                    <td className="px-4 py-2 text-red-500">Canceled</td>
-                  </tr>
+          <div
+  className={` mt-8`}
+>
+  <h2
+    className={`text-lg font-semibold text-gray-800 mb-4`}
+  >
+    Latest Transactions
+  </h2>
+  <div
+    className={`${
+      isDarkMode ? "bg-gray-800" : "bg-white"
+    } rounded-lg shadow-lg p-4`}
+  >
+    <table className="table-auto w-full text-left">
+      <thead>
+        <tr className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}>
+          <th className="px-4 py-2">Name</th>
+          <th className="px-4 py-2">Amount</th>
+          <th className="px-4 py-2">Date</th>
+          <th className="px-4 py-2">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Loop through the transactions and render them */}
+        {transactions.map((transaction) => (
+          <tr
+            key={transaction.id}
+            className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"} `}
+          >
+            <td className="px-4 py-2">{transaction.heading}</td>
+            <td className="px-4 py-2">
+              ${transaction.amount.toFixed(2)}
+            </td>
+            <td className="px-4 py-2">
+              {new Date(transaction.timestamp).toLocaleDateString()}
+            </td>
+            <td className="px-4 py-2">
+              {transaction.shared_transaction ? (
+                <span className="text-green-500">Shared</span>
+              ) : (
+                <span className="text-red-500">Personal</span>
+              )}
+            </td>
+          </tr>
+        ))}
                   {/* Add more rows as needed */}
                 </tbody>
               </table>

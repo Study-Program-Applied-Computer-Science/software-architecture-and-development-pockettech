@@ -29,5 +29,5 @@ class Transaction(Base):
     shared_transaction = Column(Boolean, nullable=False)
     category_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.UserTransactionsCategory.id"), nullable=False)
     amount = Column(Integer, nullable=False)
-    currency_code = Column(Integer, ForeignKey(f"{DB_SCHEMA}.country.id"), nullable=False)
+    currency_code = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.country.id"), nullable=False)
 
