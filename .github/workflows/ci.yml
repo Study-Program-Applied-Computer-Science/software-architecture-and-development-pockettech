@@ -76,7 +76,7 @@ jobs:
         docker run --rm auth_service ls -R /app
     - name: Run AuthService Tests
       run: |
-        docker run --rm --env-file backend/AuthService/.env auth_service pytest /tests --disable-warnings
+        docker run --rm --env-file backend/AuthService/.env auth_service pytest /app/tests --disable-warnings
 
     # Build and Test UserLoginService
     - name: Build UserLoginService
@@ -84,7 +84,7 @@ jobs:
         docker build -t user_login_service backend/UserLoginService
     - name: Run UserLoginService Tests
       run: |
-        docker run --rm --env-file backend/UserLoginService/.env user_login_service pytest /tests --disable-warnings
+        docker run --rm --env-file backend/UserLoginService/.env user_login_service pytest /app/tests --disable-warnings
 
     # Run Linting (Optional)
     - name: Lint Code
