@@ -14,3 +14,16 @@ export const fetchLastTransactions = async () => {
     throw error.response?.data || error; // Forward the error for the component to handle
   }
 };
+
+/**
+ * Fetch the last 10 transactions
+ * @returns {Promise<Array>} - Array of transactions
+ */
+export const fetchLastWeekTransactions = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/last-week`);
+    return response.data; // Return the transaction data
+  } catch (error) {
+    throw error.response?.data || error; // Forward the error for the component to handle
+  }
+};

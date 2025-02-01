@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { fetchLastTransactions } from "../services/TransactionAnalysisService/TransactionAnalysisService"; // Import the service
+import { fetchLastTransactions, fetchLastWeekTransactions } from "../services/TransactionAnalysisService/TransactionAnalysisService";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard({ isDarkMode }) {
   const [transactions, setTransactions] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch the transactions data on component mount
+  // Fetch latest transactions
   useEffect(() => {
     const getTransactions = async () => {
       try {
@@ -18,50 +24,82 @@ export default function Dashboard({ isDarkMode }) {
     getTransactions();
   }, []);
 
+  // Fetch last week's transactions
+  useEffect(() => {
+    const fetchWeeklyTransactions = async () => {
+      try {
+        const data = await fetchLastWeekTransactions();
+        setWeeklyData(data);
+      } catch (error) {
+        console.error("Error fetching weekly transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeeklyTransactions();
+  }, []);
+
+  // Prepare chart data
+  const chartData = {
+    labels: weeklyData.length
+      ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
+      : [],
+    datasets: [
+      {
+        label: "Weekly Spending ($)",
+        data: weeklyData.length ? weeklyData.map((txn) => txn.amount) : [],
+        backgroundColor: "rgba(70, 62, 238, 0.6)",
+        borderColor: "#00000021",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Sidebar */}
       <div className="flex">
-        <aside className={`${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} w-64 shadow-lg rounded-lg p-4`}>
-          <div className="text-center text-2xl font-bold text-purple-600">Yobor</div>
+        {/* Sidebar */}
+        <aside
+          className={`${
+            isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+          } w-64 shadow-lg rounded-lg p-4`}
+        >
+          <div className="text-center text-2xl font-bold text-purple-600">
+            Yobor
+          </div>
           <nav className="mt-6">
             <ul className="space-y-4">
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">dashboard</span>
-                  <span className="ml-2">Dashboard</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">account_balance</span>
-                  <span className="ml-2">Balance</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">receipt_long</span>
-                  <span className="ml-2">Invoices</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">credit_card</span>
-                  <span className="ml-2">Cards</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">attach_money</span>
-                  <span className="ml-2">Transactions</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center text-gray-700 hover:text-purple-600">
-                  <span className="material-icons-outlined">settings</span>
-                  <span className="ml-2">Settings</span>
-                </a>
-              </li>
+              {[
+                ["dashboard", "Dashboard"],
+                ["account_balance", "Balance"],
+                ["receipt_long", "Invoices"],
+                ["credit_card", "Cards"],
+                ["attach_money", "Transactions"],
+                ["settings", "Settings"],
+              ].map(([icon, label]) => (
+                <li key={label}>
+                  <a
+                    href="#"
+                    className="flex items-center text-gray-700 hover:text-purple-600"
+                  >
+                    <span className="material-icons-outlined">{icon}</span>
+                    <span className="ml-2">{label}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
           </nav>
         </aside>
@@ -79,92 +117,80 @@ export default function Dashboard({ isDarkMode }) {
 
           {/* Top Cards */}
           <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="p-6 bg-purple-600 text-white rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold">My Balance</h2>
-              <p className="text-3xl font-bold mt-2">$12,345,789</p>
-              <p className="mt-1 text-sm">Card Holder: John Doe</p>
-            </div>
-            <div className="p-6 bg-green-500 text-white rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold">Income</h2>
-              <p className="text-3xl font-bold mt-2">$45,741</p>
-              <p className="mt-1 text-sm">+0.5% last month</p>
-            </div>
-            <div className="p-6 bg-red-500 text-white rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold">Expense</h2>
-              <p className="text-3xl font-bold mt-2">$32,123</p>
-              <p className="mt-1 text-sm">-0.9% last month</p>
-            </div>
+            {[
+              ["My Balance", "$12,345,789", "Card Holder: John Doe", "bg-purple-600"],
+              ["Income", "$45,741", "+0.5% last month", "bg-green-500"],
+              ["Expense", "$32,123", "-0.9% last month", "bg-red-500"],
+            ].map(([title, amount, description, bgColor], index) => (
+              <div key={index} className={`p-6 ${bgColor} text-white rounded-lg shadow-lg`}>
+                <h2 className="text-xl font-semibold">{title}</h2>
+                <p className="text-3xl font-bold mt-2">{amount}</p>
+                <p className="mt-1 text-sm">{description}</p>
+              </div>
+            ))}
           </div>
 
           {/* Charts and Overview */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h2 className="text-lg font-semibold text-gray-800">Weekly Spending</h2>
-              <div className="mt-4">
-                {/* Placeholder for Chart */}
-                <div className="h-40 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Chart Placeholder</p>
-                </div>
-              </div>
+          <div className="p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-800">Weekly Spending</h2>
+            <div className="mt-4 h-60">
+              {loading ? (
+                <p className="text-gray-500 text-center">Loading data...</p>
+              ) : weeklyData.length > 0 ? (
+                <Bar data={chartData} options={chartOptions} />
+              ) : (
+                <p className="text-gray-500 text-center">No transactions found for the last week.</p>
+              )}
             </div>
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h2 className="text-lg font-semibold text-gray-800">Outcome Categories</h2>
-              <div className="mt-4">
-                {/* Placeholder for Pie Chart */}
-                <div className="h-40 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500">Pie Chart Placeholder</p>
-                </div>
-              </div>
+
+            <h2 className="text-lg font-semibold text-gray-800 mt-6">
+              Outcome Categories
+            </h2>
+            <div className="mt-4 h-40 bg-gray-200 rounded-lg flex items-center justify-center">
+              <p className="text-gray-500">Pie Chart Placeholder</p>
             </div>
           </div>
 
-          {/* Transactions */}
-          <div
-  className={` mt-8`}
->
-  <h2
-    className={`text-lg font-semibold text-gray-800 mb-4`}
-  >
-    Latest Transactions
-  </h2>
-  <div
-    className={`${
-      isDarkMode ? "bg-gray-800" : "bg-white"
-    } rounded-lg shadow-lg p-4`}
-  >
-    <table className="table-auto w-full text-left">
-      <thead>
-        <tr className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}>
-          <th className="px-4 py-2">Name</th>
-          <th className="px-4 py-2">Amount</th>
-          <th className="px-4 py-2">Date</th>
-          <th className="px-4 py-2">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* Loop through the transactions and render them */}
-        {transactions.map((transaction) => (
-          <tr
-            key={transaction.id}
-            className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"} `}
-          >
-            <td className="px-4 py-2">{transaction.heading}</td>
-            <td className="px-4 py-2">
-              ${transaction.amount.toFixed(2)}
-            </td>
-            <td className="px-4 py-2">
-              {new Date(transaction.timestamp).toLocaleDateString()}
-            </td>
-            <td className="px-4 py-2">
-              {transaction.shared_transaction ? (
-                <span className="text-green-500">Shared</span>
-              ) : (
-                <span className="text-red-500">Personal</span>
-              )}
-            </td>
-          </tr>
-        ))}
-                  {/* Add more rows as needed */}
+          {/* Transactions Table */}
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Latest Transactions
+            </h2>
+            <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} rounded-lg shadow-lg p-4`}>
+              <table className="table-auto w-full text-left">
+                <thead>
+                  <tr className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.length > 0 ? (
+                    transactions.map((transaction) => (
+                      <tr key={transaction.id} className={`${isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-600"}`}>
+                        <td className="px-4 py-2">{transaction.heading}</td>
+                        <td className="px-4 py-2">${transaction.amount.toFixed(2)}</td>
+                        <td className="px-4 py-2">
+                          {new Date(transaction.timestamp).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2">
+                          {transaction.shared_transaction ? (
+                            <span className="text-green-500">Shared</span>
+                          ) : (
+                            <span className="text-red-500">Personal</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center py-4 text-gray-500">
+                        No recent transactions found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
