@@ -21,5 +21,4 @@ class User(Base):
     country_id = Column(ForeignKey(f"{DB_SCHEMA}.Country.id"), nullable=False)
     email_id = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    phone_code = Column(String, nullable=False)
     phone_number = Column(String, nullable=False)
