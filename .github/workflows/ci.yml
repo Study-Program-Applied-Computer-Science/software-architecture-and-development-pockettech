@@ -40,6 +40,10 @@ jobs:
     - name: Change working directory to backend
       run: cd backend
 
+    # List project files for debugging (helps confirm that files exist)
+    - name: List project files for debugging
+      run: ls -R
+
     # Set up Private and Public Keys
     - name: Setup Private and Public Keys
       run: |
