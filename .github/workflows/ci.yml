@@ -86,6 +86,22 @@ jobs:
       run: |
         docker run --rm --env-file backend/UserLoginService/.env user_login_service pytest /app/tests --disable-warnings
 
+    # Log in to GitHub Container Registry (GHCR)
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    # Tag and Push AuthService Image
+    - name: Tag and Push AuthService Image
+      run: |
+        docker tag auth_service ghcr.io/${{ github.repository }}/auth_service:latest
+        docker push ghcr.io/${{ github.repository }}/auth_service:latest
+
+    # Tag and Push UserLoginService Image
+    - name: Tag and Push UserLoginService Image
+      run: |
+        docker tag user_login_service ghcr.io/${{ github.repository }}/user_login_service:latest
+        docker push ghcr.io/${{ github.repository }}/user_login_service:latest
+
     # Run Linting (Optional)
     - name: Lint Code
       run: |
