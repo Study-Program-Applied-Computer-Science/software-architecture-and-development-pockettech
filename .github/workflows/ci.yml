@@ -88,7 +88,8 @@ jobs:
 
     # Log in to GitHub Container Registry (GHCR)
     - name: Log in to GitHub Container Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
 
     # Convert repository name to lowercase
     - name: Set Lowercase Repository Name
