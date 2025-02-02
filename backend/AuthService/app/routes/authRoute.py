@@ -5,7 +5,8 @@ from app.schemas.auth import LoginRequest
 import requests
 from common.config.constants import USER_ROLES
 from app.config import settings
-from datetime import datetime, timedelta
+from datetime import datetime
+from app.utils.verify_password import verify_password
 
 router = APIRouter()
 
@@ -14,21 +15,28 @@ def login_user(login_request: LoginRequest, response: Response):
     # Call the UserLoginService to validate credential
     print("login_request",login_request)
     print("settings.user_login_service_url",settings.user_login_service_url)
-    user_service_response = requests.post(
-        url=f"{settings.user_login_service_url}",
-        json=login_request.model_dump()
-    )
+    user_service_response = requests.get(f"{settings.user_login_service_url}")
     
     if user_service_response.status_code != 200:
-        raise HTTPException(status_code=user_service_response.status_code, detail="Invalid credentials")
+        raise HTTPException(status_code=user_service_response.status_code, detail="Failed to fetch users")
     
-    # Create JWT token
-    user_data = user_service_response.json()
 
+    users = user_service_response.json()
+    user = next((u for u in users if u["email_id"] == login_request.email_id), None)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify password using bcrypt
+    if not verify_password(login_request.password, user["password"]):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+
+    # Create JWT token
     user_roles = USER_ROLES
 
     user_payload = {
-        "id": user_data["id"], 
+        "id": user["id"], 
         "roles": user_roles,
         "iat": int(datetime.now().timestamp())
     }
@@ -36,7 +44,7 @@ def login_user(login_request: LoginRequest, response: Response):
     token = create_access_token(data=user_payload)
     print("token created with Login",token)
 
-     # Set the token in an HTTP-only cookie
+    # Set the token in an HTTP-only cookie
     response.set_cookie(
         key="access_token",
         value=token,
@@ -44,7 +52,7 @@ def login_user(login_request: LoginRequest, response: Response):
         samesite="strict" # Prevent CSRF
     )
     
-    return {"access_token": token, "token_type": "bearer","id": user_data["id"]}
+    return {"access_token": token, "token_type": "bearer","id": user["id"]}
 
 @router.get("/verifytoken")
 def get_profile(authorization: str = Header(None)):

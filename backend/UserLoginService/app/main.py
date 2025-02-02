@@ -1,16 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes.userLoginRoute import router as auth_router
+from app.routes.userRoute import router as auth_router
 from app.db.database import Base, engine
 from app.models.country import Country
 from app.models.user import User
-
+from app.db.init_db import init_db
 
 
 # Create 'country' first as 'users' has a foreign key reference to it
 Country.__table__.create(bind=engine, checkfirst=True)  
 User.__table__.create(bind=engine, checkfirst=True)
+
+init_db()
 
 
 app = FastAPI()
