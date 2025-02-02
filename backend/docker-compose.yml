@@ -1,16 +1,51 @@
 version: '3.8'
 
 services:
-  user_login_service:
+  # auth_service:
+  #   build:
+  #     context: ./AuthService
+  #   container_name: auth_service
+  #   ports:
+  #     - "8001:8001"
+  #   env_file:
+  #     - ./AuthService/.env
+  #   volumes:
+  #     - ./common:/common/common
+  #     - ./AuthService:/app  
+  #   environment:
+  #     - PYTHONPATH=/app:/common
+  #   depends_on:
+  #     - db
+
+  # user_login_service:
+  #   build:
+  #     context: ./UserLoginService
+  #   container_name: user_login_service
+  #   ports:
+  #     - "8002:8002"
+  #   env_file:
+  #     - ./UserLoginService/.env
+  #   volumes:
+  #     - ./common:/common
+  #     - ./UserLoginService:/app
+  #   environment:
+  #     - PYTHONPATH=/app:/common
+  #   depends_on:
+  #     - db
+
+  budgeting_service:
     build:
-      context: ./UserLoginService
-    container_name: user_login_service
+      context: ./BudgetingService
+    container_name: budgeting_service
     ports:
-      - "8002:8002"
+      - "8003:8003"
     env_file:
-      - ./UserLoginService/.env
+      - ./BudgetingService/.env
     volumes:
-      - ./UserLoginService:/app
+      - ./common:/common
+      - ./BudgetingService:/app
+    environment:
+      - PYTHONPATH=/app:/common
     depends_on:
       - db
 
@@ -20,13 +55,14 @@ services:
     env_file:
       - ./.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql  # Load schema creation script
 
 volumes:
   db_data:

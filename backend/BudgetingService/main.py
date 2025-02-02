@@ -40,6 +40,6 @@ def read_budget(budget_id: uuid.UUID):
     return {"budget_id": budget_id, "details": "Budget details would be here"}
 
 
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8001))
-    uvicorn.run(app, host="127.0.0.1", port=port)
+# if __name__ == "__main__":
+#     port = int(os.getenv("PORT", 800))
+#     uvicorn.run(app, host="127.0.0.1", port=port)
