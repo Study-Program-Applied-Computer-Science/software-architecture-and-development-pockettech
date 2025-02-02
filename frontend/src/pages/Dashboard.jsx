@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { fetchLastTransactions, fetchLastWeekTransactions } from "../services/TransactionAnalysisService/TransactionAnalysisService";
-import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { fetchLastTransactions, fetchLastWeekTransactions, fetchExpensesByCategory } from "../services/TransactionAnalysisService/TransactionAnalysisService"; // Assuming you have a function like this
+import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export default function Dashboard({ isDarkMode }) {
   const [transactions, setTransactions] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]); // For storing category data
   const [loading, setLoading] = useState(true);
 
   // Fetch latest transactions
@@ -40,7 +41,21 @@ export default function Dashboard({ isDarkMode }) {
     fetchWeeklyTransactions();
   }, []);
 
-  // Prepare chart data
+  // Fetch expenses by category for the pie chart
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const data = await fetchExpensesByCategory(); // Fetch category expenses from your API
+        setCategoryData(data);
+      } catch (error) {
+        console.error("Error fetching category expenses:", error);
+      }
+    };
+
+    fetchCategoryData();
+  }, []);
+
+  // Prepare chart data for the Bar chart (Weekly Spending)
   const chartData = {
     labels: weeklyData.length
       ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
@@ -65,6 +80,36 @@ export default function Dashboard({ isDarkMode }) {
     },
     scales: {
       y: { beginAtZero: true },
+    },
+  };
+
+  // Prepare data for Pie chart (Outcome Categories)
+  const pieChartData = {
+    labels: categoryData.length
+      ? categoryData.map((category) => category.category)
+      : [],
+    datasets: [
+      {
+        data: categoryData.length ? categoryData.map((category) => category.total_amount) : [],
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+          "rgba(255, 159, 64, 0.6)",
+        ], // You can customize these colors
+        borderColor: "#ffffff",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+      tooltip: { enabled: true },
     },
   };
 
@@ -146,8 +191,12 @@ export default function Dashboard({ isDarkMode }) {
             <h2 className="text-lg font-semibold text-gray-800 mt-6">
               Outcome Categories
             </h2>
-            <div className="mt-4 h-40 bg-gray-200 rounded-lg flex items-center justify-center">
-              <p className="text-gray-500">Pie Chart Placeholder</p>
+            <div className="mt-4 h-60">
+              {categoryData.length > 0 ? (
+                <Pie data={pieChartData} options={pieChartOptions} />
+              ) : (
+                <p className="text-gray-500 text-center">No category data available.</p>
+              )}
             </div>
           </div>
 

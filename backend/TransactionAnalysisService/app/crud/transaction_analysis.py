@@ -1,43 +1,57 @@
 from sqlalchemy.orm import Session
-from app.models.transaction_analysis import Transaction
+from app.models.transaction import Transaction
 from datetime import datetime, timedelta
-import pytz;
+import pytz
 from sqlalchemy.sql import func
-from app.models.userTransactionCategory import UserTransactionsCategory
+from app.models.transactionCategory import TransactionsCategory
+from sqlalchemy import Float
+from app.schemas.transactionCategory import UserTransactionsCategoryResponse  # Import the response model
+
+
 
 # Fetch the last 10 transactions
 def get_last_10_transactions(db: Session):
     try:
-        print("Fetching last 10 transactions from the database...")  # Debugging
+        print("Fetching last 10 transactions from the database...")
+
         query = db.query(
             Transaction.id,
             Transaction.timestamp,
             Transaction.recording_user_id,
             Transaction.heading,
             Transaction.description,
-            Transaction.amount,
-            Transaction.currency_code,
+            Transaction.amount,  # Return amount without casting to float
+            Transaction.currency_code,  # Ensure this is stored as a string
             Transaction.transaction_mode,
             Transaction.shared_transaction,
-            Transaction.category_id
-        ).order_by(Transaction.timestamp.desc())  # Order by timestamp
-        
-        print("SQL Query:", str(query))  # Debugging
-        result = query.limit(10).all()  # Fetch last 10 transactions
-        print(f"Found {len(result)} transactions.")  # Debugging
+            Transaction.category  # Use category_id instead of category
+        ).order_by(Transaction.timestamp.desc()).limit(10)
+
+        result = query.all()
+
+        # Cast amount to float after fetching data
+        result = [
+            {
+                **transaction._asdict(),  # Convert the SQLAlchemy Row object to a dictionary
+                'amount': float(transaction.amount)  # Cast the amount to float here
+            }
+            for transaction in result
+        ]
+
+        print(f"Found {len(result)} transactions.")
         return result
     except Exception as e:
-        print(f"Error in get_last_10_transactions: {e}")  # Debugging
+        print(f"Error in get_last_10_transactions: {e}")
         raise
-
 
 def get_last_week_transactions(db: Session):
     try:
-        print("Fetching transactions from the last 7 days...")  # Debugging
-        utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)  # Make UTC timezone-aware
+        print("Fetching transactions from the last 7 days...")
+
+        utc_now = datetime.utcnow().replace(tzinfo=pytz.UTC)
         seven_days_ago = utc_now - timedelta(days=7)
 
-        print(f"Seven days ago (UTC with tz): {seven_days_ago}")  # Debugging
+        print(f"Seven days ago (UTC with tz): {seven_days_ago}")
 
         query = db.query(
             Transaction.id,
@@ -45,44 +59,62 @@ def get_last_week_transactions(db: Session):
             Transaction.recording_user_id,
             Transaction.heading,
             Transaction.description,
-            Transaction.amount,
-            Transaction.currency_code,
+            Transaction.amount,  # Return amount without casting to float
+            Transaction.currency_code,  # Ensure string format
             Transaction.transaction_mode,
             Transaction.shared_transaction,
-            Transaction.category_id
-        ).filter(Transaction.timestamp >= seven_days_ago)  # Correct timezone comparison
+            Transaction.category  # Use category_id
+        ).filter(Transaction.timestamp >= seven_days_ago)
 
-        print("SQL Query:", str(query))  # Debugging
         result = query.order_by(Transaction.timestamp.desc()).all()
-        print(f"Found {len(result)} transactions in the last week.")  # Debugging
 
-        for transaction in result:
-            print(f"Transaction ID: {transaction.id}, Timestamp: {transaction.timestamp}")
+        # Cast amount to float after fetching data
+        result = [
+            {
+                **transaction._asdict(),  # Convert the SQLAlchemy Row object to a dictionary
+                'amount': float(transaction.amount)  # Cast the amount to float here
+            }
+            for transaction in result
+        ]
 
+        print(f"Found {len(result)} transactions in the last week.")
         return result
     except Exception as e:
-        print(f"Error in get_last_week_transactions: {e}")  # Debugging
+        print(f"Error in get_last_week_transactions: {e}")
         raise
+
+# Fetch total expenses by category
 
 def get_expenses_by_category(db: Session):
     try:
         print("Fetching total expenses grouped by category...")
 
-        # Updated query to include category, total_amount, and additional fields
         query = db.query(
-            UserTransactionsCategory.category,
-            func.sum(Transaction.amount).label("total_amount"),
-            Transaction.recording_user_id.label("user_id"),  # Add user_id
-            Transaction.id.label("id")  # Add id if necessary
+            TransactionsCategory.id,  # The category ID
+            TransactionsCategory.category,  # The category name
+            TransactionsCategory.expense,  # Whether it's an expense category or not
+            func.sum(func.cast(Transaction.amount, Float)).label("total_amount")  # Sum of transaction amounts
         ).join(
-            UserTransactionsCategory, Transaction.category_id == UserTransactionsCategory.id
+            Transaction, Transaction.category == TransactionsCategory.id  # Joining the Transaction model with TransactionsCategory
         ).group_by(
-            UserTransactionsCategory.category, Transaction.recording_user_id, Transaction.id
-        )  # Group by category and include additional fields
+            TransactionsCategory.id,  # Grouping by category ID
+            TransactionsCategory.category,  # Grouping by category name
+            TransactionsCategory.expense  # Grouping by expense flag
+        )
 
         result = query.all()
-        print(f"Found {len(result)} category expenses.")
-        return result
+
+        # Return the mapped result as the Pydantic model
+        return [
+            UserTransactionsCategoryResponse(
+                id=row[0],  # id from TransactionsCategory
+                category=row[1],  # category from TransactionsCategory
+                expense=row[2],  # expense from TransactionsCategory
+                total_amount=row[3]  # total_amount (sum of transaction amounts)
+            )
+            for row in result
+        ]
+
     except Exception as e:
         print(f"Error in get_expenses_by_category: {e}")
         raise
