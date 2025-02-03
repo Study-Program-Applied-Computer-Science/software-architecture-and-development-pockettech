@@ -1,7 +1,8 @@
 import os
-import uuid
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import uvicorn
+from slowapi.errors import RateLimitExceeded
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,8 +19,16 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Add the exception handler for rate limit exceeded
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."},
+    )
+
 # CORS setup
-origins = ["http://localhost:5173"]  # Update as per frontend origin
+origins = ["http://localhost:3000"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
