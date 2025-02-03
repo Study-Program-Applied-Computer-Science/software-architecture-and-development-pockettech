@@ -2,12 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.authRoute import router as auth_router
 from app.config import settings
-import uvicorn
 
 app = FastAPI()
 
 # CORS setup
-origins = ["http://localhost:3000"]  # Update as per frontend origin
+origins = ["http://localhost:5173"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -25,5 +24,7 @@ def root():
 
 # add port to run the service
 
+print("Registered routes:")
 for route in app.routes:
     print(route)
+    print(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")

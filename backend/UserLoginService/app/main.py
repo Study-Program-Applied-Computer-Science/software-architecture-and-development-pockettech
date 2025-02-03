@@ -1,17 +1,33 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes.userLoginRoute import router as auth_router
+from app.routes.userRoute import router as auth_router
 from app.db.database import Base, engine
 from app.models.country import Country
 from app.models.user import User
+from app.db.init_db import init_db
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_SCHEMA = os.getenv("DB_SCHEMA")
 
 
+print("Creating tables")
+Base.metadata.create_all(bind=engine)
 
-# Create 'country' first as 'users' has a foreign key reference to it
-Country.__table__.create(bind=engine, checkfirst=True)  
-User.__table__.create(bind=engine, checkfirst=True)
+init_db()
 
+print("Country schema:", Country.__table__.schema)
+print("User schema:", User.__table__.schema)
+
+from sqlalchemy import inspect
+inspector = inspect(engine)
+
+print(" Tables in Database:")
+for table in inspector.get_table_names(schema=DB_SCHEMA):
+    print(f"  - {table}")
 
 app = FastAPI()
 
@@ -26,7 +42,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth_router, prefix="/user", tags=["register"])
+app.include_router(auth_router, prefix="/api/v1/user", tags=["register"])
 
 @app.get("/")
 def read_root():
