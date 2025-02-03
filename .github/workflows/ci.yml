@@ -121,9 +121,19 @@ jobs:
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Install gke-gcloud-auth-plugin
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+
+    - name: Configure kubectl to use gke-gcloud-auth-plugin
+      run: |
+        echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+        gcloud container clusters get-credentials finance-planner-cluster --region europe-southwest1 --project ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Deploy to GCP
       run: |
-        gcloud auth configure-docker
-        gcloud container clusters get-credentials finance-planner-cluster --region europe-southwest1 --project ${{ secrets.GCP_PROJECT_ID }}
         kubectl apply -f k8s/auth_service.yaml
