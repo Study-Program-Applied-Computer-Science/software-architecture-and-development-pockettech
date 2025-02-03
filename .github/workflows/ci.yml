@@ -112,3 +112,18 @@ jobs:
       run: |
         pip install flake8
         flake8 backend/AuthService backend/UserLoginService --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    # Deploy to GCP
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Deploy to GCP
+      run: |
+        gcloud auth configure-docker
+        gcloud container clusters get-credentials finance-planner-cluster --region europe-southwest1 --project ${{ secrets.GCP_PROJECT_ID }}
+        kubectl apply -f k8s/auth_service.yaml
