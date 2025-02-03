@@ -3,8 +3,7 @@ from uuid import UUID
 import re
 
 class UserCreate(BaseModel):
-    first_name: str
-    last_name: str
+    name: str
     email_id: EmailStr
     password: str
     country_id: int
@@ -31,10 +30,8 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     id: UUID
-    first_name: str
-    last_name: str
+    name: str
     email_id: str
-    phone_code: str
     phone_number: str
     password: str
 

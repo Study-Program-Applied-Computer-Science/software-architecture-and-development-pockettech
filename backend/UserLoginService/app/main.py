@@ -6,14 +6,28 @@ from app.db.database import Base, engine
 from app.models.country import Country
 from app.models.user import User
 from app.db.init_db import init_db
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_SCHEMA = os.getenv("DB_SCHEMA")
 
 
-# Create 'country' first as 'users' has a foreign key reference to it
-Country.__table__.create(bind=engine, checkfirst=True)  
-User.__table__.create(bind=engine, checkfirst=True)
+print("Creating tables")
+Base.metadata.create_all(bind=engine)
 
 init_db()
 
+print("Country schema:", Country.__table__.schema)
+print("User schema:", User.__table__.schema)
+
+from sqlalchemy import inspect
+inspector = inspect(engine)
+
+print(" Tables in Database:")
+for table in inspector.get_table_names(schema=DB_SCHEMA):
+    print(f"  - {table}")
 
 app = FastAPI()
 
