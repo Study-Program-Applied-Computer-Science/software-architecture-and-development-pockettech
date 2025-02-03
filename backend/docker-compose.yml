@@ -1,32 +1,36 @@
 version: '3.8'
 
 services:
-  user_login_service:
-    build:
-      context: ./UserLoginService
-    container_name: user_login_service
-    ports:
-      - "8002:8002"
-    env_file:
-      - ./UserLoginService/.env
-    volumes:
-      - ./UserLoginService:/app
-    depends_on:
-      - db
-
+  shared_expenses_service:
+      build:
+        context: ./SharedExpensesService
+      container_name: shared_expenses_service
+      ports:
+        - "8004:8004"
+      env_file:
+        - ./SharedExpensesService/.env
+      volumes:
+        - ./common:/common
+        - ./SharedExpensesService:/app
+      environment:
+        - PYTHONPATH=/app:/common
+      depends_on:
+        - db
+  
   db:
     image: postgres:15
     container_name: finance_db
     env_file:
       - ./.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql  # Load schema creation script
 
 volumes:
   db_data:
