@@ -3,9 +3,7 @@ from app.db.database import engine, Base
 from app.routes import (
     shared_group,
     shared_transaction,
-    share_type,
-    payment_status,
-    shared_group_participants,
+    shared_group_participants
 )
 
 # Create the database tables if they don't exist
@@ -31,6 +29,5 @@ async def list_routes():
 # Include routers
 app.include_router(shared_group.router, prefix="/shared-group", tags=["SharedGroup"])
 app.include_router(shared_transaction.router, prefix="/shared-transaction", tags=["SharedTransaction"])
-app.include_router(share_type.router, prefix="/share-type", tags=["ShareType"])
-app.include_router(payment_status.router, prefix="/payment-status", tags=["PaymentStatus"])
 app.include_router(shared_group_participants.router, prefix="/shared-group-participants", tags=["SharedGroupParticipants"])
+

@@ -8,8 +8,15 @@ class SharedGroupParticipantsBase(BaseModel):
 class SharedGroupParticipantsCreate(SharedGroupParticipantsBase):
     pass
 
-class SharedGroupParticipants(SharedGroupParticipantsBase):
+class SharedGroupParticipant(SharedGroupParticipantsBase):
     id: UUID
+    name: str
+    email_id: str
+    phone_number: str
 
     class Config:
         orm_mode = True
+
+class SharedGroupParticipantsList(BaseModel):
+    participants: list[SharedGroupParticipant]
+    group_name: str

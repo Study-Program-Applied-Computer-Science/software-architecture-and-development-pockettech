@@ -8,7 +8,7 @@ class UserBase(BaseModel):
     country_id: uuid.UUID
     email_id: str
     password: str
-    phone_code: str
+    # phone_code: str
     phone_number: str
 
 

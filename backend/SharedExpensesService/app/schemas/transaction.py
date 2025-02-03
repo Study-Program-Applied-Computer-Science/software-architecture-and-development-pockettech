@@ -14,18 +14,22 @@ class TransactionBase(BaseModel):
     description: Optional[str] = None
     transaction_mode: str
     shared_transaction: bool
-    category_id: uuid.UUID
+    category: int
     amount: int
-    currency_code: uuid.UUID
+    currency_code: int
 
 
 class TransactionCreate(TransactionBase):
     pass
 
+class TransactionUpdate(TransactionBase):
+    id: uuid.UUID
+    timestamp: datetime
+    pass
 
 class TransactionResponse(TransactionBase):
     id: uuid.UUID
     timestamp: datetime
-
+    
     class Config:
         orm_mode = True

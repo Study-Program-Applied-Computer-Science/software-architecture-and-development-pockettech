@@ -1,42 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.db.database import get_db
 from app.crud import shared_group_participants as crud
-from app.schemas.shared_group_participants import SharedGroupParticipantsCreate, SharedGroupParticipants
+from app.schemas.shared_group_participants import SharedGroupParticipantsCreate, SharedGroupParticipantsList
+from app.db.database import get_db
 from uuid import UUID
 
 router = APIRouter()
 
-@router.post("/", response_model=SharedGroupParticipants)
+#create a shared group participant
+@router.post("/", response_model=SharedGroupParticipantsCreate)
 def create_shared_group_participant(participant: SharedGroupParticipantsCreate, db: Session = Depends(get_db)):
     return crud.create_shared_group_participant(db, participant)
 
-@router.get("/{group_id}", response_model=list[SharedGroupParticipants])
+#get shared group participants by group id
+@router.get("/participants/{group_id}", response_model=SharedGroupParticipantsList)
 def get_shared_group_participants(group_id: UUID, db: Session = Depends(get_db)):
-    participants = crud.get_shared_group_participants(db, group_id)
-    if not participants:
-        raise HTTPException(status_code=404, detail="Participants not found")
-    return participants
+    shared_group_participants= crud.get_shared_group_participants_by_group_id(db, group_id)
+    if not shared_group_participants:
+        raise HTTPException(status_code=404, detail="No participants found for this group")
+    return shared_group_participants
 
-@router.get("/participant/{participant_id}", response_model=SharedGroupParticipants)
-def get_participant_by_id(participant_id: UUID, db: Session = Depends(get_db)):
-    participant = crud.get_participant_by_id(db, participant_id)
-    if not participant:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    return participant
 
-@router.delete("/participant/{participant_id}", response_model=SharedGroupParticipants)
+#delete shared group participant
+@router.delete("/{participant_id}")
 def delete_shared_group_participant(participant_id: UUID, db: Session = Depends(get_db)):
-    deleted_participant = crud.delete_shared_group_participant(db, participant_id)
-    if not deleted_participant:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    return deleted_participant
-
-
-@router.put("/participant/{participant_id}", response_model=SharedGroupParticipants)
-def update_shared_group_participant(participant_id: UUID, participant_data: SharedGroupParticipantsCreate, db: Session = Depends(get_db)):
-    updated_participant = crud.update_shared_group_participant(db, participant_id, participant_data)
-    if not updated_participant:
-        raise HTTPException(status_code=404, detail="Participant not found")
-    return updated_participant
+    try:
+        return crud.delete_shared_group_participant(db, str(participant_id))
+    except Exception as e: 
+        raise HTTPException(status_code=400, detail=str(e))
 

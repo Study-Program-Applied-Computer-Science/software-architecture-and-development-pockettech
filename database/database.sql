@@ -114,11 +114,6 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroupParticipants" (
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "FinancePlanner"."ShareType" (
-    id serial NOT NULL,
-    share_type text NOT NULL,
-    CONSTRAINT "ShareType_pkey" PRIMARY KEY (id)
-);
 
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."PaymentStatus" (
     id serial NOT NULL,
@@ -126,47 +121,19 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."PaymentStatus" (
     CONSTRAINT "PaymentStatus_pkey" PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedTransaction" (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    transaction_id uuid NOT NULL,
-    group_user_id_main uuid NOT NULL,
-    group_user_id_sub uuid NOT NULL,
-    share_type_id integer NOT NULL,
-    share_value numeric NOT NULL,
-    payment_status integer NOT NULL,
-    CONSTRAINT "SharedTransaction_pkey" PRIMARY KEY (id),
-    CONSTRAINT "FK_SharedTransaction_Transaction_ID" FOREIGN KEY (transaction_id)
-        REFERENCES "FinancePlanner"."Transaction" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT "FK_SharedTransaction_GroupUser_Main" FOREIGN KEY (group_user_id_main)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT "FK_SharedTransaction_GroupUser_Sub" FOREIGN KEY (group_user_id_sub)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT "FK_SharedTransaction_ShareType" FOREIGN KEY (share_type_id)
-        REFERENCES "FinancePlanner"."ShareType" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT "FK_SharedTransaction_PaymentStatus" FOREIGN KEY (payment_status)
-        REFERENCES "FinancePlanner"."PaymentStatus" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT
-);
 
 -- Extend FinancePlanner Schema
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroup" (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    admin_user_id uuid NOT NULL,
-    group_name text NOT NULL,
-    CONSTRAINT "SharedGroup_pkey" PRIMARY KEY (id),
-    CONSTRAINT "FK_SharedGroup_User_Admin" FOREIGN KEY (admin_user_id)
-        REFERENCES "FinancePlanner"."User" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    group_name TEXT NOT NULL,
+    CONSTRAINT "SharedGroup_pkey" PRIMARY KEY (id)  -- ✅ Fix: Added PRIMARY KEY
 );
 
+-- Create SharedGroupParticipants table with foreign keys
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroupParticipants" (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    group_id uuid NOT NULL,
-    participant_user_id uuid NOT NULL,
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL,
+    participant_user_id UUID NOT NULL,
     CONSTRAINT "SharedGroupParticipants_pkey" PRIMARY KEY (id),
     CONSTRAINT "FK_GroupParticipants_SharedGroup_GroupID" FOREIGN KEY (group_id)
         REFERENCES "FinancePlanner"."SharedGroup" (id)
@@ -176,11 +143,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedGroupParticipants" (
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "FinancePlanner"."ShareType" (
-    id serial NOT NULL,
-    share_type text NOT NULL,
-    CONSTRAINT "ShareType_pkey" PRIMARY KEY (id)
-);
+
 
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."PaymentStatus" (
     id serial NOT NULL,
@@ -188,30 +151,38 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."PaymentStatus" (
     CONSTRAINT "PaymentStatus_pkey" PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedTransaction" (
+-- Table: FinancePlanner.SharedTransaction
+
+-- DROP TABLE IF EXISTS "FinancePlanner"."SharedTransaction";
+
+CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedTransaction"
+(
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     transaction_id uuid NOT NULL,
     group_user_id_main uuid NOT NULL,
     group_user_id_sub uuid NOT NULL,
-    share_type_id integer NOT NULL,
+    repayment_transaction_id uuid,
     share_value numeric NOT NULL,
     payment_status integer NOT NULL,
     CONSTRAINT "SharedTransaction_pkey" PRIMARY KEY (id),
-    CONSTRAINT "FK_SharedTransaction_Transaction_ID" FOREIGN KEY (transaction_id)
-        REFERENCES "FinancePlanner"."Transaction" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_GroupUser_Main" FOREIGN KEY (group_user_id_main)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
+        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_GroupUser_Sub" FOREIGN KEY (group_user_id_sub)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT "FK_SharedTransaction_ShareType" FOREIGN KEY (share_type_id)
-        REFERENCES "FinancePlanner"."ShareType" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
+        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_PaymentStatus" FOREIGN KEY (payment_status)
-        REFERENCES "FinancePlanner"."PaymentStatus" (id)
-        ON UPDATE CASCADE ON DELETE RESTRICT
+        REFERENCES "FinancePlanner"."PaymentStatus" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    CONSTRAINT "FK_SharedTransaction_RepaymentTransaction" FOREIGN KEY (repayment_transaction_id)
+        REFERENCES "FinancePlanner"."Transaction" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE SET NULL,
+    CONSTRAINT "FK_SharedTransaction_Transaction_ID" FOREIGN KEY (transaction_id)
+        REFERENCES "FinancePlanner"."Transaction" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
-
-
