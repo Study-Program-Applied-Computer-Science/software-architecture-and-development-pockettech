@@ -28,5 +28,17 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  frontend:
+    build:
+      context: ../frontend  # Path to your frontend project
+    container_name: frontend
+    ports:
+      - "3000:80"  # Expose port 3000 for local access
+    depends_on:
+      - transaction_analysis_service  # Ensure backend starts first
+    volumes:
+      - ./frontend:/app  # Optional: Only needed if developing
+    
+
 volumes:
   db_data:
