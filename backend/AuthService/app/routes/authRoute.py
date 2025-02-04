@@ -7,13 +7,14 @@ from common.config.constants import USER_ROLES, AUTH_SERVICE_ROLE
 from app.config import settings
 from datetime import datetime
 from app.utils.verify_password import verify_password
-
+from app.utils.logging import setup_logger
 router = APIRouter()
-
+logger = setup_logger()
 @router.post("/login")
 def login_user(login_request: LoginRequest, response: Response):
     # Call the UserLoginService to validate credential
     
+    logger.info(f"Login request for user: {login_request.email_id}")
     print("login_request",login_request)
     print("settings.user_login_service_url",settings.user_login_service_url)
     
