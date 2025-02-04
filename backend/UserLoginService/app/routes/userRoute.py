@@ -3,17 +3,18 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.user import User
-from app.schemas.userLogin import UserCreate, UserResponse, LoginRequest
+from app.schemas.userLogin import UserCreate, UserResponse,PublicUserResponse
 from app.utils.hash import hash_password, verify_password
 from app.db.database import get_db
 from app.models.country import Country
-from app.utils.verifyToken import verify_token_via_api
-
+from app.utils.verifyToken import verify_roles
+from common.config.constants import USER_ROLES, AUTH_SERVICE_ROLE
+from fastapi import Response
 
 
 router = APIRouter()
 
-@router.post("/", response_model=UserResponse)
+@router.post("/", response_model=UserResponse, status_code=201)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if email or phone number is already registered
     existing_user = db.query(User).filter((User.email_id == user.email_id)).first()
@@ -45,13 +46,23 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 # get all users
 @router.get("/", response_model=list[UserResponse])
-def get_all_users(db: Session = Depends(get_db)):
-    print("---------------------get_all_users-------------------")
+def get_all_users(db: Session = Depends(get_db), authorization: Optional[str] = Header(None)):
+    print("Authorization Header GetALL:", authorization)
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Token not found")
+    
+    # Split the "Bearer <token>" and get the token
+    token = authorization.split("Bearer ")[-1] if "Bearer " in authorization else None
+    
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid token format")
+    
+    verify_roles(token, [AUTH_SERVICE_ROLE])
     users = db.query(User).all()
     return users
 
 #get user details
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=PublicUserResponse)
 def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Optional[str] = Header(None), request: Request = None):
     print("Request Headers:", request.headers)
     # Try to get the token from cookies
@@ -59,7 +70,7 @@ def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Option
     
     # Fall back to the Authorization header if the cookie is not available
     if not token:
-        token = authorization
+        token = authorization.split("Bearer ")[-1] if "Bearer " in authorization else None
         if not token:
             raise HTTPException(status_code=401, detail="Token not found")
     
@@ -67,11 +78,11 @@ def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Option
    
     try:
         print("token",token)
-        user_data = verify_token_via_api(token)
-        print("user_data",user_data)
-        print("user_data: ",user_data["user_id"])
+        token_data = verify_roles(token, [USER_ROLES])
+        print("user_data",token_data)
+        print("user_data: ",token_data["id"])
         print("URL ",str(user_id))
-        if str(user_data["user_id"]) != str(user_id):
+        if str(token_data["id"]) != str(user_id):
             raise HTTPException(status_code=403, detail="Token does not match user ID")
     except Exception as e:
         print(f"Exception occurred: {e}")
@@ -79,30 +90,33 @@ def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Option
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    
+    user_response = user.__dict__.copy()  
+    user_response.pop("password", None)  
+    
+    return user_response
+
 
 # update user details
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), authorization: Optional[str] = Header(None), request: Request = None):
+@router.put("/{user_id}", response_model=PublicUserResponse)
+def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), request: Request = None):
     print("Request Headers:", request.headers)
+    
     # Try to get the token from cookies
     token = request.cookies.get("access_token")
     
-    # Fall back to the Authorization header if the cookie is not available
     if not token:
-        token = authorization
-        if not token:
-            raise HTTPException(status_code=401, detail="Token not found")
+        raise HTTPException(status_code=401, detail="Token not found")
     
     print("Token from frontend:", token)
    
     try:
         print("token",token)
-        user_data = verify_token_via_api(token)
-        print("user_data",user_data)
-        print("user_data: ",user_data["user_id"])
+        token_data = verify_roles(token, [USER_ROLES])
+        print("user_data",token_data)
+        print("user_data: ",token_data["id"])
         print("URL ",str(user_id))
-        if str(user_data["user_id"]) != str(user_id):
+        if str(token_data["id"]) != str(user_id):
             raise HTTPException(status_code=403, detail="Token does not match user ID")
     except Exception as e:
         print(f"Exception occurred: {e}")
@@ -117,30 +131,31 @@ def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), 
     user.phone_number = user.phone_number
     db.commit()
     db.refresh(user)
-    return user
+    user_response = user.__dict__.copy()  
+    user_response.pop("password", None)  
+    
+    return user_response
 
 # delete user 
-@router.delete("/{user_id}", response_model=UserResponse)
-def delete_user(user_id: UUID, db: Session = Depends(get_db), authorization: Optional[str] = Header(None), request: Request = None):
+@router.delete("/{user_id}", status_code=204)
+def delete_user(user_id: UUID, db: Session = Depends(get_db), request: Request = None):
     print("Request Headers:", request.headers)
     # Try to get the token from cookies
     token = request.cookies.get("access_token")
     
     # Fall back to the Authorization header if the cookie is not available
     if not token:
-        token = authorization
-        if not token:
-            raise HTTPException(status_code=401, detail="Token not found")
+        raise HTTPException(status_code=401, detail="Token not found")
     
     print("Token from frontend:", token)
    
     try:
         print("token",token)
-        user_data = verify_token_via_api(token)
-        print("user_data",user_data)
-        print("user_data: ",user_data["user_id"])
+        token_data = verify_roles(token, [USER_ROLES])
+        print("user_data",token_data)
+        print("user_data: ",token_data["id"])
         print("URL ",str(user_id))
-        if str(user_data["user_id"]) != str(user_id):
+        if str(token_data["id"]) != str(user_id):
             raise HTTPException(status_code=403, detail="Token does not match user ID")
     except Exception as e:
         print(f"Exception occurred: {e}")
@@ -150,4 +165,4 @@ def delete_user(user_id: UUID, db: Session = Depends(get_db), authorization: Opt
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(user)
     db.commit()
-    return user
+    return Response(status_code=204)  # No Content
