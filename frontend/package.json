@@ -33,6 +33,6 @@
     "globals": "^15.14.0",
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.1",
-    "vite": "^6.0.5"
+    "vite": "^6.0.11"
   }
 }

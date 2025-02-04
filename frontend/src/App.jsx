@@ -4,6 +4,9 @@ import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ExpenseList from "./pages/ExpenseList";
+import ExpenseForm from "./pages/ExpenseForm";
+import ExpenseView from "./pages/ExpenseView";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -36,6 +39,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
           <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
+          <Route path="/expenses" element={<ExpenseList isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/new" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/edit/:expenseId" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/:expenseId" element={<ExpenseView isDarkMode={isDarkMode}/>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

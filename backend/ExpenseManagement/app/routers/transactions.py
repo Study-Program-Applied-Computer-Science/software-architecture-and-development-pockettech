@@ -1,21 +1,26 @@
 import uuid
 
 
-from app.schemas import transaction
+from app.schemas import transaction, transactionsCategory, country, user
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.database import get_db
-from app.crud.crud import delete_transaction, get_transactions, get_transaction_by_category_id, get_transaction_by_user_id, get_transaction_by_user_id_date, get_transaction_by_id, create_transaction, update_transaction
+from app.crud.crud import get_users, get_countries, get_categories, delete_transaction, get_transactions, get_transaction_by_category_id, get_transaction_by_user_id, get_transaction_by_user_id_date, get_transaction_by_id, create_transaction, update_transaction
 
 
 router = APIRouter()
 
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
+@router.get("/category", response_model=list[transactionsCategory.TransactionsCategoryResponse])
+def read_transactions_category(db: Session = Depends(get_db)):
+    return get_categories(db)
+
+@router.get("/country", response_model=list[country.CountryResponse])
+def read_countries(db: Session = Depends(get_db)):
+    return get_countries(db)
+
+@router.get("/users", response_model=list[user.UserResponse])
+def read_users(db: Session = Depends(get_db)):
+    return get_users(db)
 
 @router.get("/", response_model=list[transaction.TransactionResponse])
 def read_transactions(db: Session = Depends(get_db)):

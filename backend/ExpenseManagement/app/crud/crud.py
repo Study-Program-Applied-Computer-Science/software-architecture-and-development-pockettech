@@ -12,18 +12,23 @@ from app.models.transactionsCategory import TransactionsCategory as Transactions
 from app.schemas.transaction import TransactionCreate, TransactionResponse, TransactionUpdate
 from app.schemas.country import CountryCreate, CountryResponse
 from app.schemas.user import UserCreate, UserUpdate, UserResponse
-from app.schemas.transactionsCategory import (
-    TransactionsCategoryCreate,
-    TransactionsCategoryResponse,
-)
-# ---------------------------------------------------------------------------------
-# TRANSACTION CRUD
-# ---------------------------------------------------------------------------------
+from app.schemas.transactionsCategory import TransactionsCategoryCreate, TransactionsCategoryResponse
+
+
+def get_categories(db: Session) -> list[TransactionsCategoryModel]:
+    return db.query(TransactionsCategoryModel).all()
+
+def get_countries(db: Session) -> list[CountryModel]:
+    return db.query(CountryModel).all()
+
+def get_users(db: Session) -> list[UserModel]:
+    return db.query(UserModel).all()
+
 def get_transactions(db: Session) -> list[TransactionModel]:
     """Retrieve all transactions."""
     return db.query(TransactionModel).all()
 
-def get_transaction_by_id(db: Session, transaction_id: uuid.UUID) -> TransactionModel | None:
+def get_transaction_by_id(db: Session, transaction_id: uuid.UUID) -> TransactionModel:
     """Retrieve a single transaction by its ID."""
     return db.query(TransactionModel).filter(TransactionModel.id == transaction_id).first()
 
@@ -89,9 +94,7 @@ def update_transaction(db: Session, transaction_id: uuid.UUID, transaction_in: T
     db.refresh(db_transaction)
     return db_transaction
 
-
-
-def delete_transaction(db: Session, transaction_id: uuid.UUID) -> TransactionModel | None:
+def delete_transaction(db: Session, transaction_id: uuid.UUID) -> TransactionModel:
     """Delete a transaction record."""
     db_transaction = db.query(TransactionModel).filter(TransactionModel.id == transaction_id).first()
     if db_transaction is None:
@@ -100,8 +103,6 @@ def delete_transaction(db: Session, transaction_id: uuid.UUID) -> TransactionMod
     db.delete(db_transaction)
     db.commit()
     return db_transaction
-
-
 
 
 # # ---------------------------------------------------------------------------------
