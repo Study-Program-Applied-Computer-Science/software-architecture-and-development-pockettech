@@ -1,6 +1,38 @@
 version: '3.8'
 
 services:
+  auth_service:
+    build:
+      context: ./AuthService
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./AuthService/.env
+    volumes:
+      - ./common:/common/common
+      - ./AuthService:/app  
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+
+  user_login_service:
+    build:
+      context: ./UserLoginService
+    container_name: user_login_service
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./UserLoginService/.env
+    volumes:
+      - ./common:/common
+      - ./UserLoginService:/app
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+      
   transaction_analysis_service:
     build:
       context: ./TransactionAnalysisService
