@@ -4,6 +4,7 @@ import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import Budget from "./pages/Budget";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -37,6 +38,7 @@ const App = () => {
           <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
           <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/budget" element={<Budget isDarkMode={isDarkMode} />} />
         </Routes>
       </Layout>
     </Router>
