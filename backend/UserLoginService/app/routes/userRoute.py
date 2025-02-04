@@ -22,7 +22,9 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email or phone number already registered")
 
     # Query the Country table to get the phone_code based on the country_id
+    print("Checking for country_id:", user.country_id)
     country = db.query(Country).filter(Country.id == user.country_id).first()
+    print("Country result:", country)
     
     if not country:
         raise HTTPException(status_code=400, detail="Invalid country_id")
