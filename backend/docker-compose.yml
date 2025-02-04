@@ -46,6 +46,9 @@ services:
       - ./BudgetingService:/app
     environment:
       - PYTHONPATH=/app:/common
+      - ELASTIC_ENDPOINT=${ELASTIC_ENDPOINT}  # Your Elasticsearch endpoint
+      - ELASTIC_USERNAME=${ELASTIC_USERNAME}  # Your Elasticsearch username
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}  # Your Elasticsearch password
     depends_on:
       - db
 
