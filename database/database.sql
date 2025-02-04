@@ -32,19 +32,14 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."User"
         ON DELETE RESTRICT
 );
 
-DROP TABLE IF EXISTS "FinancePlanner"."UserTransactionsCategory";
+DROP TABLE IF EXISTS "FinancePlanner"."TransactionsCategory";
 
-CREATE TABLE IF NOT EXISTS "FinancePlanner"."UserTransactionsCategory"
+CREATE TABLE IF NOT EXISTS "FinancePlanner"."TransactionsCategory"
 (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL,
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 400 CACHE 1 ),
     category text COLLATE pg_catalog."default" NOT NULL,
     expense boolean NOT NULL DEFAULT true,
-    CONSTRAINT "UserTransactionsCategory_pkey" PRIMARY KEY (id),
-    CONSTRAINT "FK_USER_TRANSACTIONS_CATEGORY_USER__USER_ID" FOREIGN KEY (user_id)
-        REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
-        ON UPDATE CASCADE
-        ON DELETE CASCADE
+    CONSTRAINT "TransactionsCategory_pkey" PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS "FinancePlanner"."Transaction";
@@ -61,7 +56,7 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Transaction"
     description text COLLATE pg_catalog."default",
     transaction_mode text COLLATE pg_catalog."default" NOT NULL,
     shared_transaction boolean NOT NULL,
-    category uuid NOT NULL,
+    category integer NOT NULL,
     amount numeric NOT NULL,
     currency_code integer NOT NULL,
     CONSTRAINT "Transaction_pkey" PRIMARY KEY (id),
@@ -69,8 +64,8 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Transaction"
         REFERENCES "FinancePlanner"."Country" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
-    CONSTRAINT "FK_TRANSACTION_USER_TRANSACTION_CATEGORY__CATEGORY" FOREIGN KEY (category)
-        REFERENCES "FinancePlanner"."UserTransactionsCategory" (id) MATCH SIMPLE
+    CONSTRAINT "FK_TRANSACTION_TRANSACTION_CATEGORY__CATEGORY" FOREIGN KEY (category)
+        REFERENCES "FinancePlanner"."TransactionsCategory" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
     CONSTRAINT "FK_TRANSACTION_USER__CREDIT_USER_ID" FOREIGN KEY (credit_user_id)
@@ -107,3 +102,15 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Budget"
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+
+INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('Germany', 'EUR', '+49');
+
+INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('India', 'INR', '+91');
+
+INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('USA', 'USD', '+1');
+
+INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Groceries', True);
+
+INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Clothes', True);
+
+INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Entertainment', True);
