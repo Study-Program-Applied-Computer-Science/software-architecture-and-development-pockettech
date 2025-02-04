@@ -1,7 +1,7 @@
 import os
 import sys
 
-from app.utils.logging import setup_logger
+from common.config.logging import setup_logger
 
 from dotenv import load_dotenv
 
@@ -21,7 +21,9 @@ DB_SCHEMA = os.getenv("DB_SCHEMA")
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-logger = setup_logger()
+SERVICE_NAME = os.getenv("SERVICE_NAME")
+
+logger = setup_logger(SERVICE_NAME)
 
 try:
     engine = create_engine(

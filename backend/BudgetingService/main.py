@@ -4,7 +4,8 @@ import uuid
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import uvicorn
-from app.utils.logging import setup_logger
+from common.config.logging import setup_logger
+from common.config.correlation import CorrelationIdMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,8 +29,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+load_dotenv()
+SERVICE_NAME = os.getenv("SERVICE_NAME")
 
-logger = setup_logger()
+logger = setup_logger(SERVICE_NAME)
+
+# Add Correlation ID Middleware
+app.add_middleware(CorrelationIdMiddleware)
 
 
 # Include routers

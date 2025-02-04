@@ -1,4 +1,6 @@
 import uuid
+import os
+from dotenv import load_dotenv
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -6,11 +8,14 @@ from sqlalchemy.orm import Session
 from app.schemas.budget import BudgetBaseResponse, BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
 from app.db.database import get_db
 from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_transactions_by_user_id_and_date_budgets, update_budget
-from app.utils.logging import setup_logger
+from common.config.logging import setup_logger
 
 router = APIRouter()
 
-logger = setup_logger()
+load_dotenv()
+SERVICE_NAME = os.getenv("SERVICE_NAME")
+
+logger = setup_logger(SERVICE_NAME)
 
 #get all budgets
 @router.get("/", response_model=list[BudgetResponse])

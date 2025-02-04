@@ -42,7 +42,7 @@ services:
     env_file:
       - ./BudgetingService/.env
     volumes:
-      - ./common:/common
+      - ./common:/common/common
       - ./BudgetingService:/app
     environment:
       - PYTHONPATH=/app:/common
