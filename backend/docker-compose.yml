@@ -24,7 +24,7 @@ services:
     env_file:
       - ./UserLoginService/.env
     volumes:
-      - ./common:/common
+      - ./common:/common/common
       - ./UserLoginService:/app
     environment:
       - PYTHONPATH=/app:/common

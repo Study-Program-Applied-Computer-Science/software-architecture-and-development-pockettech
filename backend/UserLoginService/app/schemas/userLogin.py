@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from uuid import UUID
 import re
+from typing import Optional
 
 class UserCreate(BaseModel):
     name: str
@@ -26,14 +27,18 @@ class UserCreate(BaseModel):
 
         return value
 
-
-
-class UserResponse(BaseModel):
+class PublicUserResponse(BaseModel):
     id: UUID
     name: str
     email_id: str
     phone_number: str
-    password: str
+
+    class Config:
+        orm_mode = True
+        json_encoders = {UUID: lambda v: str(v)}
+
+class UserResponse(PublicUserResponse):
+    password: Optional[str] = None
 
     class Config:
         orm_mode = True
