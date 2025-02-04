@@ -11,6 +11,7 @@ from typing import Optional
 from decimal import Decimal
 from app.schemas.transaction import TransactionCreate   
 from sqlalchemy import Numeric, Float
+from decimal import Decimal, ROUND_HALF_UP
 
 # TODO: use transaction service to create the transaction
 def create_transaction(db: Session, transaction_in: TransactionCreate) -> Transaction:
@@ -22,36 +23,57 @@ def create_transaction(db: Session, transaction_in: TransactionCreate) -> Transa
     print(db_transaction.id)
     return db_transaction.id
 
-# Create a shared transaction and split among group members
-def create_shared_transaction(db: Session, new_transaction: Transaction) -> list[SharedTransaction]:
+
+def create_shared_transaction(db: Session, new_transaction: SharedTransactionCreate) -> list[SharedTransaction]:
     """Creates shared transactions by splitting the amount among group members."""
 
-    new_transaction.shared_transaction = True 
-    new_transaction_id = create_transaction(
-        db=db,
-        transaction_in=new_transaction
-    )
+    new_transaction.shared_transaction = True
+    try: 
+        new_transaction_id = create_transaction(
+            db=db,
+            transaction_in=TransactionCreate(
+                recording_user_id=new_transaction.recording_user_id,
+                credit_user_id=new_transaction.credit_user_id or None,
+                debit_user_id=new_transaction.debit_user_id or None,
+                other_party=new_transaction.other_party or None,
+                heading=new_transaction.heading,
+                description=new_transaction.description or None,
+                transaction_mode=new_transaction.transaction_mode,
+                shared_transaction=True,
+                category=new_transaction.category,
+                amount=new_transaction.amount,
+                currency_code=new_transaction.currency_code
+            )
+        )
+        print(new_transaction_id)
+    except Exception as e:
+        raise ValueError(f"Error creating transaction: {str(e)}")
 
-    # Get group_id of the user
-    group_record = db.query(SharedGroupParticipants).filter(
-        SharedGroupParticipants.participant_user_id == new_transaction.recording_user_id
-    ).first()
-    print(group_record.group_id)
 
-    if not group_record:
-        raise ValueError("User does not belong to any group")
-
-    group_id = group_record.group_id  
+    group_id = new_transaction.group_id  
 
     #  Get all users in the group (excluding the recording user)
-    group_users = db.query(SharedGroupParticipants.participant_user_id).filter(
-        SharedGroupParticipants.group_id == group_id
-    ).all()
-
-    group_users_list = [user.participant_user_id for user in group_users if user.participant_user_id != new_transaction.recording_user_id]
-
-    if not group_users_list:
+    try:
+        group_users = db.query(SharedGroupParticipants.participant_user_id).filter(
+            SharedGroupParticipants.group_id == group_id
+        ).all()
+        print(group_users)
+    except Exception as e:
         raise ValueError("No other users found in the group")
+
+    group_users_list = []
+    print("group_users: ", group_users)
+    print("recording_id", new_transaction.recording_user_id)
+    for user in group_users:
+        group_users_list.append(user.participant_user_id)
+
+    if len(group_users_list) == 1:
+        raise ValueError("No other users found in the group")
+
+    print("group_users_list", group_users_list)
+
+
+    
 
     # Calculate shared amount per user
     split_amount = new_transaction.amount / len(group_users_list)
@@ -62,6 +84,7 @@ def create_shared_transaction(db: Session, new_transaction: Transaction) -> list
     for user_id in group_users_list:
         shared_transaction = SharedTransaction(
             transaction_id=new_transaction_id,
+            group_id=group_id,
             group_user_id_main=new_transaction.recording_user_id,  # ✅ Corrected
             group_user_id_sub=user_id,
             share_value=split_amount,
@@ -95,7 +118,7 @@ def update_repayment_transaction(
         recording_user_id=shared_transaction.group_user_id_sub,
         credit_user_id=shared_transaction.group_user_id_main,
         debit_user_id=shared_transaction.group_user_id_sub,
-        amount=shared_transaction.share_value,
+        amount=int(shared_transaction.share_value),
         category=transaction.category,
         currency_code=transaction.currency_code,
         heading="Repayment",
@@ -108,9 +131,9 @@ def update_repayment_transaction(
     )
 
     payment_status_values = get_payment_status(db)
-    paid_payment_status = payment_status_values["completed"]
+    paid_payment_status = payment_status_values["paid"]
     if paid_payment_status is None:
-        raise ValueError("Payment status 'completed' not found.")
+        raise ValueError("Payment status 'paid' not found.")
     
     if repayment_transaction_id:
         # Update repayment_transaction_id to the new payment transaction
@@ -152,9 +175,12 @@ def create_repayment_transaction(
 # get transaction by group_user_id_main or group_user_id_sub
 def get_transaction_by_group_user_id(
     db: Session,
-    group_user_id: UUID
+    group_user_id: UUID,
+    group_id: UUID
 ) -> list[SharedTransaction]:
     shared_transactions = db.query(SharedTransaction).filter(
-        (SharedTransaction.group_user_id_main == group_user_id) | (SharedTransaction.group_user_id_sub == group_user_id)
+        (SharedTransaction.group_user_id_main == group_user_id) |
+         (SharedTransaction.group_user_id_sub == group_user_id),
+         SharedTransaction.group_id == group_id
     ).all()
     return shared_transactions

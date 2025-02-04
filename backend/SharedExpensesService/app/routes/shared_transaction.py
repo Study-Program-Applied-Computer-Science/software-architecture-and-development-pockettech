@@ -26,7 +26,7 @@ def repay_shared_transaction(
 # Create a shared transaction
 @router.post("/shared-transactions/", response_model=list[SharedTransaction])
 def create_shared_transaction_route(
-    transaction: TransactionCreate, 
+    transaction: SharedTransactionCreate,
     db: Session = Depends(get_db)
 ):
     return create_shared_transaction(db, transaction)
@@ -35,11 +35,13 @@ def create_shared_transaction_route(
 @router.get("/shared-transactions/{group_user_id}", response_model=list[SharedTransaction])
 def get_transaction_by_group_user_id_route(
     group_user_id: UUID,
+    group_id: UUID,
     db: Session = Depends(get_db)
 ):
     shared_transactions = crud.get_transaction_by_group_user_id(
         db=db,
-        group_user_id=group_user_id
+        group_user_id=group_user_id,
+        group_id=group_id
     )
     
     return shared_transactions

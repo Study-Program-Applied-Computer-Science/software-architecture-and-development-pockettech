@@ -156,26 +156,27 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."PaymentStatus" (
     CONSTRAINT "PaymentStatus_pkey" PRIMARY KEY (id)
 );
 
--- Table: FinancePlanner.SharedTransaction
-
--- DROP TABLE IF EXISTS "FinancePlanner"."SharedTransaction";
-
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedTransaction"
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     transaction_id uuid NOT NULL,
+    group_id uuid NOT NULL,  -- New column
     group_user_id_main uuid NOT NULL,
     group_user_id_sub uuid NOT NULL,
     repayment_transaction_id uuid,
     share_value numeric NOT NULL,
     payment_status integer NOT NULL,
     CONSTRAINT "SharedTransaction_pkey" PRIMARY KEY (id),
+    CONSTRAINT "FK_SharedTransaction_Group" FOREIGN KEY (group_id)  -- Foreign key constraint for group_id
+        REFERENCES "FinancePlanner"."SharedGroup" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_GroupUser_Main" FOREIGN KEY (group_user_id_main)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id) MATCH SIMPLE
+        REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_GroupUser_Sub" FOREIGN KEY (group_user_id_sub)
-        REFERENCES "FinancePlanner"."SharedGroupParticipants" (id) MATCH SIMPLE
+        REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     CONSTRAINT "FK_SharedTransaction_PaymentStatus" FOREIGN KEY (payment_status)
@@ -190,4 +191,4 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."SharedTransaction"
         REFERENCES "FinancePlanner"."Transaction" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
-);
+)

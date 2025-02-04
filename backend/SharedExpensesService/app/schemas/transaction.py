@@ -15,9 +15,9 @@ class TransactionBase(BaseModel):
     transaction_mode: str
     shared_transaction: bool
     category: int
-    amount: int
+    amount: float
     currency_code: int
-
+    #group_id: uuid
 
 class TransactionCreate(TransactionBase):
     pass

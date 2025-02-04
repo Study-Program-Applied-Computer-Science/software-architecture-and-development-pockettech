@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from app.db.database import engine, Base
 from app.routes import (
     shared_group,
-    shared_transaction,
-    shared_group_participants
+    shared_transaction
 )
+
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -26,8 +27,19 @@ async def list_routes():
         print(f"Path: {route.path} | Name: {route.name}")
 
 
+# CORS setup
+origins = ["http://localhost:5173"]  # Update as per frontend origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 # Include routers
 app.include_router(shared_group.router, prefix="/shared-group", tags=["SharedGroup"])
 app.include_router(shared_transaction.router, prefix="/shared-transaction", tags=["SharedTransaction"])
-app.include_router(shared_group_participants.router, prefix="/shared-group-participants", tags=["SharedGroupParticipants"])
+# app.include_router(shared_group_participants.router, prefix="/shared-group-participants", tags=["SharedGroupParticipants"])
 
