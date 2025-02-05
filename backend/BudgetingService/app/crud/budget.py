@@ -7,6 +7,7 @@ from app.models.budget import Budget
 from app.models.transactionsCategory import TransactionsCategory
 from app.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetUpdate
+from app.models.country import Country
 
 
 #get all budgets
@@ -28,6 +29,27 @@ def get_all_budgets(db: Session):
 
     return query.all()
 
+
+#get a budget by id
+def get_budget_by_id(db: Session, budget_id: uuid.UUID):
+    query = db.query(
+        Budget.id,
+        Budget.user_id,
+        Budget.category_id,
+        Budget.amount,
+        Budget.start_date,
+        Budget.end_date,
+        Budget.currency_id,
+        TransactionsCategory.category,
+        TransactionsCategory.expense
+    ).join(
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
+    ).filter(
+        Budget.id == budget_id
+    )
+
+    return query.first()
 
 #get all budgets by user_id
 def get_all_budgets_by_user_id(db: Session, user_id: uuid.UUID):
@@ -135,7 +157,7 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
         Budget.category_id == TransactionsCategory.id
     ).filter(
         Budget.user_id == user_id,
-        (Budget.start_date <= start_date) & (Budget.end_date >= end_date)
+        (Budget.start_date >= start_date) & (Budget.end_date <= end_date)
     )
     budgets = budgets_query.all()
     budgets_transactions = []
@@ -208,3 +230,10 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
             "total_amount": total_amount
         })
     return budgets_transactions
+
+
+def get_all_currencies(db: Session):
+    return db.query(Country).all()
+
+def get_all_categories(db: Session):
+    return db.query(TransactionsCategory).all()

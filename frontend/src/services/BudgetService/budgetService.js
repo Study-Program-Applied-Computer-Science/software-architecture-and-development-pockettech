@@ -1,69 +1,50 @@
-import axios from "axios";
+import axios from 'axios';
 
-const BASE_URL = "http://localhost:8003";
+const API_URL = 'http://127.0.0.1:8003';
 
+export const createBudget = async (budget) => {
+  const response = await axios.post(`${API_URL}/budget/`, budget);
+  return response.data;
+};
 
-// /**
-//  * Login user
-//  * @param {string} email - User's email
-//  * @param {string} password - User's password
-//  * @returns {Promise<Object>} - Response data from the API
-//  */
+export const getCategories = async () => {
+  const response = await axios.get(`${API_URL}/budget/categories`);
+  return response.data;
+};
 
-// export const loginUser = async (email, password) => {
-//   try {
-//     const response = await axios.post(`${BASE_URL}/user/verifyuser`, {
-//       email_id: email,
-//       password: password,
-//     });
-//     return response.data; // Return the response data
-//   } catch (error) {
-//     throw error.response?.data || error; // Forward the error for the component to handle
-//   }
-// };
-
-export const createBudget = async (budgetData) => {
-  try {
-    const response = await axios.post(`${BASE_URL}/budget/`, budgetData);
+export const getCurrencies = async () => {
+    const response = await axios.get(`${API_URL}/budget/currencies`);
     return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-}
+};
 
-export const updateBudget = async (budgetId, budgetData) => {
-  try {
-    const response = await axios.put(`${BASE_URL}/budget/${budgetId}`, budgetData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-}
+export const updateBudget = async (budgetId, budget) => {
+  const response = await axios.put(`${API_URL}/budget/${budgetId}`, budget);
+  return response.data;
+};
 
 export const deleteBudget = async (budgetId) => {
-  try {
-    const response = await axios.delete(`${BASE_URL}/budget/${budgetId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-}
+  const response = await axios.delete(`${API_URL}/budget/${budgetId}`);
+  return response.data;
+};
 
-export const getBudgets = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/budget/${userId}/${start_date}/${end_date}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-}
+export const getAllTransactions = async (userId, startDate, endDate) => {
+  const response = await axios.get(
+    `${API_URL}/budget/alltransactions/${userId}/${startDate}/${endDate}`
+  );
+  return response.data;
+};
 
-export const getBudgetsWithTransactions = async () => {
-  try {
-    const response = await axios.get(`${BASE_URL}/budget/alltransactions/${userId}/${start_date}/${end_date}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-}
+export const getBudgetById = async (budgetId) => {
+  const response = await axios.get(`${API_URL}/budget/getbudget/${budgetId}`);
+  return response.data;
+};
 
+export default {
+  createBudget,
+  updateBudget,
+  deleteBudget,
+  getAllTransactions,
+  getBudgetById,
+  getCurrencies, 
+  getCategories
+};
