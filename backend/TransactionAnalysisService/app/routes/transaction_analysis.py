@@ -23,9 +23,9 @@ from app.models.transactionCategory import TransactionsCategory
 
 router = APIRouter()
 
-# Initialize logger for debugging
+# Initialize logger
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -36,35 +36,40 @@ limiter = Limiter(key_func=get_remote_address)
 @limiter.limit("10/minute")
 def get_last_10_transactions_endpoint(request: Request, db: Session = Depends(get_db)):
     try:
-        logger.info("Fetching last 10 transactions...")
+        logger.info(f"[{request.client.host}] Fetching last 10 transactions...")
         transactions = get_last_10_transactions(db)
+        logger.info(f"Successfully retrieved {len(transactions)} transactions.")
         return transactions
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error(f"Error fetching last 10 transactions: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching last 10 transactions.")
+
 
 # API endpoint to get transactions from the last week
 @router.get("/transactions/last-week", response_model=List[TransactionResponse])
 @limiter.limit("5/minute")
 def get_last_week_transactions_endpoint(request: Request, db: Session = Depends(get_db)):
     try:
-        logger.info("Fetching last week's transactions...")
+        logger.info(f"[{request.client.host}] Fetching last week's transactions...")
         transactions = get_last_week_transactions(db)
+        logger.info(f"Successfully retrieved {len(transactions)} transactions from last week.")
         return transactions
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error(f"Error fetching last week's transactions: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching last week's transactions.")
+
 
 # API endpoint to fetch expenses grouped by category
 @router.get("/transactions/expenses-by-category", response_model=List[UserTransactionsCategoryResponse])
 @limiter.limit("5/minute")
 def get_expenses_by_category_endpoint(request: Request, db: Session = Depends(get_db)):
     try:
-        logger.info("Fetching expenses by category...")
+        logger.info(f"[{request.client.host}] Fetching expenses grouped by category...")
         category_expenses = get_expenses_by_category(db)
+        logger.info(f"Successfully retrieved expenses for {len(category_expenses)} categories.")
         return category_expenses
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error(f"Error fetching expenses by category: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error fetching expenses by category.")
 
 
@@ -78,12 +83,17 @@ def predict_savings_endpoint(
     db: Session = Depends(get_db)
 ):
     try:
-        return predict_savings(db, user_id, months_to_predict)
-    except HTTPException:
+        logger.info(f"[{request.client.host}] Predicting savings for User {user_id} for {months_to_predict} months...")
+        result = predict_savings(db, user_id, months_to_predict)
+        logger.info(f"Savings prediction successful for User {user_id}.")
+        return result
+    except HTTPException as e:
+        logger.warning(f"Prediction failed: {str(e)}")
         raise
     except Exception as e:
         logger.error(f"Prediction error: {str(e)}", exc_info=True)
-        raise HTTPException(500, "Savings prediction failed")
+        raise HTTPException(status_code=500, detail="Savings prediction failed")
+
 
 # Categorization endpoint
 @router.post("/transactions/categorize-transactions")
@@ -93,9 +103,13 @@ def categorize_transactions_endpoint(
     db: Session = Depends(get_db)
 ):
     try:
-        return categorize_transactions(db)
-    except HTTPException:
+        logger.info(f"[{request.client.host}] Categorizing transactions...")
+        result = categorize_transactions(db)
+        logger.info("Transaction categorization successful.")
+        return result
+    except HTTPException as e:
+        logger.warning(f"Categorization failed: {str(e)}")
         raise
     except Exception as e:
         logger.error(f"Categorization error: {str(e)}", exc_info=True)
-        raise HTTPException(500, "Transaction categorization failed")
+        raise HTTPException(status_code=500, detail="Transaction categorization failed")

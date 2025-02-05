@@ -1,16 +1,14 @@
 import os
 import sys
-# import logging
-
+import logging
 from dotenv import load_dotenv
-
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-
-# logging.basicConfig()
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -21,13 +19,12 @@ DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 DB_SCHEMA = os.getenv("DB_SCHEMA")
 
-
-# Debugging: Print environment variables related to DB connection
-print(f"DB Schema: {os.getenv('DB_SCHEMA')}")
-print(f"DB Host: {os.getenv('DB_HOST')}")
-print(f"DB Port: {os.getenv('DB_PORT')}")
-print(f"DB User: {os.getenv('DB_USER')}")
-print(f"DB Password: {os.getenv('DB_PASSWORD')}")
+# Debugging: Log environment variables related to DB connection
+logger.info(f"DB Schema: {DB_SCHEMA}")
+logger.info(f"DB Host: {DB_HOST}")
+logger.info(f"DB Port: {DB_PORT}")
+logger.info(f"DB User: {DB_USER}")
+# Do not log DB_PASSWORD for security reasons
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
@@ -40,18 +37,16 @@ try:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base = declarative_base()
     
-    print("Database connection successful.")
+    logger.info("Database connection successful.")
 except Exception as e:
-    print("Database connection failed.")
-    print(e)
+    logger.error("Database connection failed.", exc_info=True)
     sys.exit(1)
-
 
 def get_db():
     db = SessionLocal()
     try:
-        print(f"Session created, using DB schema: {DB_SCHEMA}")
+        logger.info(f"Session created, using DB schema: {DB_SCHEMA}")
         yield db
     finally:
         db.close()
-        print(f"Session closed for DB schema: {DB_SCHEMA}")
+        logger.info(f"Session closed for DB schema: {DB_SCHEMA}")
