@@ -14,6 +14,10 @@ from dotenv import dotenv_values
 
 from common.config.logging import setup_logger
 from common.utils.http_client import make_request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
 
 
 
@@ -22,8 +26,13 @@ router = APIRouter()
 SERVICE_NAME = dotenv_values(".env")["SERVICE_NAME"]
 logger = setup_logger(SERVICE_NAME)
 
+# Initialize rate limiter (in-memory)
+limiter = Limiter(key_func=get_remote_address)
+
+
 @router.post("/", response_model=UserResponse, status_code=201)
-def register_user(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("10/minute") 
+def register_user(request: Request,user: UserCreate, db: Session = Depends(get_db)):
     # Check if email or phone number is already registered
     existing_user = db.query(User).filter((User.email_id == user.email_id)).first()
     print("existing_user",existing_user)
@@ -113,6 +122,7 @@ def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Option
 
 # update user details
 @router.put("/{user_id}", response_model=PublicUserResponse)
+@limiter.limit("5/minute") 
 def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), request: Request = None):
     print("Request Headers:", request.headers)
     
