@@ -65,7 +65,7 @@ export default function Dashboard({ isDarkMode }) {
   useEffect(() => {
     const getPredictedSavings = async () => {
       try {
-        const userId = "550e8400-e29b-41d4-a716-446655440000"; // Replace with your dynamic user ID as needed
+        const userId = "550e8400-e29b-41d4-a716-446655440000"; // Replace with dynamic user ID as needed
         const data = await fetchPredictedSavings(userId, 3);
         setPredictedSavings(data);
       } catch (error) {
@@ -90,15 +90,13 @@ export default function Dashboard({ isDarkMode }) {
 
   // Prepare chart data for the Bar chart (Weekly Spending)
   const barChartData = {
-    labels: weeklyData.length
-      ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
-      : [],
+    labels: weeklyData.length ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString()) : [],
     datasets: [
       {
         label: "Weekly Spending ($)",
         data: weeklyData.length ? weeklyData.map((txn) => txn.amount) : [],
-        backgroundColor: "rgba(70, 62, 238, 0.6)",
-        borderColor: "#00000021",
+        backgroundColor: isDarkMode ? "rgba(255, 159, 64, 0.6)" : "rgba(70, 62, 238, 0.6)",
+        borderColor: isDarkMode ? "#ffffff" : "#00000021",
         borderWidth: 1,
       },
     ],
@@ -145,6 +143,7 @@ export default function Dashboard({ isDarkMode }) {
   };
 
   return (
+    // Adding left margin (ml-64) to account for the fixed sidebar width
     <div className="min-h-screen bg-gray-100 p-6 ml-64">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
@@ -171,30 +170,30 @@ export default function Dashboard({ isDarkMode }) {
       </div>
 
       {/* Charts and Overview */}
-      <div className="p-6 bg-white rounded-lg shadow-lg mb-8">
+      <div className={`p-6 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"} rounded-lg shadow-lg mb-8`}>
         <div className="grid grid-cols-2 gap-6">
           {/* Bar Chart: Weekly Spending */}
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-800">Weekly Spending</h2>
+            <h2 className="text-lg font-semibold">Weekly Spending</h2>
             <div className="mt-4 h-60">
               {loading ? (
-                <p className="text-gray-500 text-center">Loading data...</p>
+                <p className="text-center">{isDarkMode ? "Loading data..." : "Loading data..."}</p>
               ) : weeklyData.length > 0 ? (
                 <Bar data={barChartData} options={barChartOptions} />
               ) : (
-                <p className="text-gray-500 text-center">No transactions found for the last week.</p>
+                <p className="text-center">No transactions found for the last week.</p>
               )}
             </div>
           </div>
 
           {/* Pie Chart: Outcome Categories */}
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-800">Outcome Categories</h2>
+            <h2 className="text-lg font-semibold">Outcome Categories</h2>
             <div className="mt-4 h-60">
               {categoryData.length > 0 ? (
                 <Pie data={pieChartData} options={pieChartOptions} />
               ) : (
-                <p className="text-gray-500 text-center">No category data available.</p>
+                <p className="text-center">No category data available.</p>
               )}
             </div>
           </div>
@@ -202,7 +201,7 @@ export default function Dashboard({ isDarkMode }) {
 
         {/* Predicted Savings */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-800">Predicted Savings</h2>
+          <h2 className="text-lg font-semibold">Predicted Savings</h2>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow">
             {predictedSavings ? (
               <ul>
@@ -220,7 +219,7 @@ export default function Dashboard({ isDarkMode }) {
 
         {/* Categorization Result */}
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-800">Categorization Result</h2>
+          <h2 className="text-lg font-semibold">Categorization Result</h2>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow">
             {categorizationResult && !categorizationResult.error ? (
               <ul>
