@@ -1,14 +1,17 @@
 import React from "react";
-import Header from "./components/Header"; // Import the Header
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
 
-const Layout = ({ children, isDarkMode, themeSwitch }) => {
+const Layout = ({ children, isDarkMode, themeSwitch, showSidebar = true }) => {
   return (
-    <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
-      {/* Header at the top */}
+    <div>
       <Header isDarkMode={isDarkMode} themeSwitch={themeSwitch} />
-
-      {/* Page content */}
-      <main className="pt-16">{children}</main>
+      <div className="flex">
+        {showSidebar && <Sidebar isDarkMode={isDarkMode} />}
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

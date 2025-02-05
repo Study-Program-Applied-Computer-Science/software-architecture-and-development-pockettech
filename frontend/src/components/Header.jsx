@@ -5,10 +5,14 @@ import { FaRegMoon } from "react-icons/fa";
 const Header = ({ isDarkMode, themeSwitch }) => {
   return (
     <header
-      className={`absolute top-0 left-0 w-full h-16 ${
-        isDarkMode ? "bg-gray-900" : "bg-blue-50"
-      } flex items-center justify-end pr-4`}
+      className={`absolute top-0 left-0 w-full h-16 flex items-center justify-between px-4 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-blue-50 text-gray-900"
+      }`}
     >
+      {/* Left: FinancePlanner Title */}
+      <h1 className="text-xl font-bold">FinancePlanner</h1>
+
+      {/* Right: Theme Toggle */}
       <button
         onClick={themeSwitch}
         className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
