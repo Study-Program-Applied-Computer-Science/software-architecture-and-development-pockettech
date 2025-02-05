@@ -11,9 +11,6 @@ class Settings(BaseSettings):
     private_key_path: str
     public_key_path: str
     service_name: str
-    elastic_endpoint: str
-    elastic_username: str
-    elastic_password: str
 
     class Config:
         env_file = ".env"

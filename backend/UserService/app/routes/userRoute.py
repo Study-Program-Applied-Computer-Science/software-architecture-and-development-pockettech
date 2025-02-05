@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.models.user import User
-from app.schemas.userLogin import UserCreate, UserResponse,PublicUserResponse
+from app.schemas.userLogin import UserCreate, UserResponse, PublicUserResponse, UserUpdate
 from app.utils.hash import hash_password, verify_password
 from app.db.database import get_db
 from app.models.country import Country
@@ -123,8 +123,10 @@ def get_user(user_id: UUID, db: Session = Depends(get_db), authorization: Option
 # update user details
 @router.put("/{user_id}", response_model=PublicUserResponse)
 @limiter.limit("5/minute") 
-def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), request: Request = None):
-    print("Request Headers:", request.headers)
+def update_user(user_id: UUID, user: UserUpdate, db: Session = Depends(get_db), request: Request = None):
+    print("Request Headers PUT---------------------------:", request.headers)
+    print("Request Body PUT---------------------------:", user)
+    print("Request Body PUT---------------------------:", request.body())
     
     # Try to get the token from cookies
     token = request.cookies.get("access_token")
@@ -132,33 +134,41 @@ def update_user(user_id: UUID, user: UserCreate, db: Session = Depends(get_db), 
     if not token:
         raise HTTPException(status_code=401, detail="Token not found")
     
-    print("Token from frontend:", token)
+    print("Token from frontend PUT-----------------------------:", token)
    
     try:
-        print("token",token)
+        print("PUT --------------- token",token)
         token_data = verify_roles(token, [USER_ROLES])
-        print("user_data",token_data)
-        print("user_data: ",token_data["id"])
-        print("URL ",str(user_id))
+        print("user_data put-------------------------",token_data)
+        print("user_data put---------------------: ",token_data["id"])
+        print("URL -------------------------------- ",str(user_id))
         if str(token_data["id"]) != str(user_id):
             raise HTTPException(status_code=403, detail="Token does not match user ID")
     except Exception as e:
         print(f"Exception occurred: {e}")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    user = db.query(User).filter(User.id == user_id).first()
+    user_db = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user.name = user.name
-    user.email_id = user.email_id
-    user.password = user.password
-    user.country_id = user.country_id
-    user.phone_number = user.phone_number
-    db.commit()
-    db.refresh(user)
-    user_response = user.__dict__.copy()  
-    user_response.pop("password", None)  
     
-    return user_response
+    user_db.name = user.name
+    user_db.email_id = user.email_id
+    # check if password not null
+    if user.password:
+        user_db.password = hash_password(user.password)
+    #user_db.password = user.password
+    #user_db.country_id = user.country_id
+    user_db.phone_number = user.phone_number
+    db.commit()
+    db.refresh(user_db)
+
+    return PublicUserResponse(
+    id=user_db.id,
+    name=user_db.name,
+    email_id=user_db.email_id,
+    phone_number=user_db.phone_number
+    )
+
 
 # delete user 
 @router.delete("/{user_id}", status_code=204)

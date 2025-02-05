@@ -19,15 +19,15 @@ services:
 
   user_login_service:
     build:
-      context: ./UserLoginService
+      context: ./UserService
     container_name: user_login_service
     ports:
       - "8002:8002"
     env_file:
-      - ./UserLoginService/.env
+      - ./UserService/.env
     volumes:
       - ./common:/common/common
-      - ./UserLoginService:/app
+      - ./UserService:/app
     environment:
       - PYTHONPATH=/app:/common
     depends_on:

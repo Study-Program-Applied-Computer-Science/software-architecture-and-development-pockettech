@@ -11,6 +11,7 @@ def init_db():
             countries = [
                 Country(id=1,country="United States", currency="USD", phone_code="+1"),
                 Country(id=2,country="India", currency="INR", phone_code="+91"),
+                Country(id=3,country="Germany", currency="EUR", phone_code="+49")
             ]
             db.add_all(countries)
             db.commit()
