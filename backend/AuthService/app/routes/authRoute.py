@@ -7,16 +7,22 @@ from common.config.constants import USER_ROLES, AUTH_SERVICE_ROLE
 from app.config import settings
 from datetime import datetime
 from app.utils.verify_password import verify_password
-from app.utils.logging import setup_logger
+
+from common.config.logging import setup_logger
+from common.utils.http_client import make_request
+from common.config.correlation import get_correlation_id
+
 router = APIRouter()
-logger = setup_logger()
+
+SERVICE_NAME = settings.service_name
+logger = setup_logger(SERVICE_NAME)
+
+
 @router.post("/login")
 def login_user(login_request: LoginRequest, response: Response):
     # Call the UserLoginService to validate credential
-    
-    logger.info(f"Login request for user: {login_request.email_id}")
-    print("login_request",login_request)
-    print("settings.user_login_service_url",settings.user_login_service_url)
+    correlation_id = get_correlation_id()
+    logger.info("User Login", extra={"correlationId": correlation_id})
     
     auth_service_role = [AUTH_SERVICE_ROLE]
 
@@ -28,12 +34,16 @@ def login_user(login_request: LoginRequest, response: Response):
 
     auth_service_token = create_access_token(data=auth_service_token_payload)
 
-    headers = {"Authorization": f"Bearer {auth_service_token}"}
+    headers = {"Authorization": f"Bearer {auth_service_token}",
+        "X-Correlation-ID": correlation_id}
 
     print("headers for auth_service_token",headers)
     user_service_response = requests.get(f"{settings.user_login_service_url}", headers=headers)
+
+    #user_service_response = make_request("GET", f"{settings.user_login_service_url}", headers=headers)
     
     if user_service_response.status_code != 200:
+        logger.error("Failed to fetch users", extra={"correlationId": correlation_id})
         raise HTTPException(status_code=user_service_response.status_code, detail="Failed to fetch users")
     
 
@@ -41,10 +51,12 @@ def login_user(login_request: LoginRequest, response: Response):
     user = next((u for u in users if u["email_id"] == login_request.email_id), None)
     
     if not user:
+        logger.error("User not found", extra={"correlationId": correlation_id})
         raise HTTPException(status_code=404, detail="User not found")
     
     # Verify password using bcrypt
     if not verify_password(login_request.password, user["password"]):
+        logger.error("Invalid credentials", extra={"correlationId": correlation_id})
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     # Create JWT token
@@ -58,7 +70,6 @@ def login_user(login_request: LoginRequest, response: Response):
     }
 
     token = create_access_token(data=user_payload)
-    print("token created with Login",token)
 
     # Set the token in an HTTP-only cookie
     response.set_cookie(

@@ -9,6 +9,11 @@ from app.db.init_db import init_db
 import os
 from dotenv import load_dotenv
 
+from common.config.correlation import CorrelationIdMiddleware
+from common.config.logging import setup_logger
+
+from dotenv import dotenv_values
+
 load_dotenv()
 
 DB_SCHEMA = os.getenv("DB_SCHEMA")
@@ -41,6 +46,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+SERVICE_NAME  = dotenv_values(".env")["SERVICE_NAME"]
+logger = setup_logger(SERVICE_NAME)
+
+# Add Correlation ID Middleware
+app.add_middleware(CorrelationIdMiddleware)
 # Include routers
 app.include_router(auth_router, prefix="/api/v1/user", tags=["register"])
 

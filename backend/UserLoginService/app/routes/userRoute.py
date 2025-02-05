@@ -10,9 +10,17 @@ from app.models.country import Country
 from app.utils.verifyToken import verify_roles
 from common.config.constants import USER_ROLES, AUTH_SERVICE_ROLE
 from fastapi import Response
+from dotenv import dotenv_values
+
+from common.config.logging import setup_logger
+from common.utils.http_client import make_request
+
 
 
 router = APIRouter()
+
+SERVICE_NAME = dotenv_values(".env")["SERVICE_NAME"]
+logger = setup_logger(SERVICE_NAME)
 
 @router.post("/", response_model=UserResponse, status_code=201)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -46,15 +54,21 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 # get all users
 @router.get("/", response_model=list[UserResponse])
-def get_all_users(db: Session = Depends(get_db), authorization: Optional[str] = Header(None)):
+def get_all_users(
+    db: Session = Depends(get_db), 
+    authorization: Optional[str] = Header(None), 
+    x_correlation_id: Optional[str] = Header(None)):
     print("Authorization Header GetALL:", authorization)
+    logger.info(f"Received request with Correlation ID: {x_correlation_id}")
     if not authorization:
+        logger.error("Token not found", extra={"correlationId": x_correlation_id})
         raise HTTPException(status_code=401, detail="Token not found")
     
     # Split the "Bearer <token>" and get the token
     token = authorization.split("Bearer ")[-1] if "Bearer " in authorization else None
     
     if not token:
+        logger.error("Invalid token format", extra={"correlationId": x_correlation_id})
         raise HTTPException(status_code=401, detail="Invalid token format")
     
     verify_roles(token, [AUTH_SERVICE_ROLE])

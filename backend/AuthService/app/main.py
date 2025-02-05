@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.authRoute import router as auth_router
 from app.config import settings
 from app.routes.publicKeyRoute import router as public_key_router
-
-
+from common.config.correlation import CorrelationIdMiddleware
+from common.config.logging import setup_logger
 
 app = FastAPI()
 
@@ -17,6 +17,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+SERVICE_NAME = settings.service_name
+logger = setup_logger(SERVICE_NAME)
+
+# Add Correlation ID Middleware
+app.add_middleware(CorrelationIdMiddleware)
 
 # Include routers
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
