@@ -12,6 +12,6 @@ class TransactionsCategoryCreate(TransactionsCategoryBase):
 
 class TransactionsCategoryResponse(TransactionsCategoryBase):
     id: int
-
+ 
     class Config:
         orm_mode = True

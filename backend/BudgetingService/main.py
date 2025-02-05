@@ -2,7 +2,9 @@ from datetime import datetime
 import os
 import uuid
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 import uvicorn
 # from common.config.logging import setup_logger
 # from common.config.correlation import CorrelationIdMiddleware
@@ -11,10 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import Base, engine
 from app.routes.budget import router as budget_router
+from app.routes.publicKeyRoute import router as public_key_router
+from app.db.init_db import init_db
 
 
 Base.metadata.create_all(bind=engine)
 
+init_db()
 
 app = FastAPI()
 
@@ -37,9 +42,17 @@ SERVICE_NAME = os.getenv("SERVICE_NAME")
 # # Add Correlation ID Middleware
 # app.add_middleware(CorrelationIdMiddleware)
 
+# Add the exception handler for rate limit exceeded
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."},
+    )
 
 # Include routers
 app.include_router(budget_router, prefix="/budget", tags=["budget"])
+app.include_router(public_key_router)
 
 @app.get("/")
 def read_root():
