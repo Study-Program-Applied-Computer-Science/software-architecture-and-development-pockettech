@@ -18,11 +18,11 @@ def get_jwks():
         "keys": [
             {
                 "kty": "RSA",
-                "kid": "1",  # Key ID
-                "use": "sig",  # Usage: signature
+                "kid": "1",  
+                "use": "sig", 
                 "alg": "RS256",
-                "n": base64url_encode(n),  # Convert modulus to Base64-URL
-                "e": base64url_encode(e)   # Convert exponent to hex
+                "n": base64url_encode(n),  
+                "e": base64url_encode(e)  
             }
         ]
     }

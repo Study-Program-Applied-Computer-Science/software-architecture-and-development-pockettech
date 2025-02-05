@@ -20,7 +20,7 @@ logger = setup_logger(SERVICE_NAME)
 
 @router.post("/login")
 def login_user(login_request: LoginRequest, response: Response):
-    # Call the UserLoginService to validate credential
+   
     correlation_id = get_correlation_id()
     logger.info("User Login", extra={"correlationId": correlation_id})
     
@@ -37,10 +37,7 @@ def login_user(login_request: LoginRequest, response: Response):
     headers = {"Authorization": f"Bearer {auth_service_token}",
         "X-Correlation-ID": correlation_id}
 
-    print("headers for auth_service_token",headers)
     user_service_response = requests.get(f"{settings.user_login_service_url}", headers=headers)
-
-    #user_service_response = make_request("GET", f"{settings.user_login_service_url}", headers=headers)
     
     if user_service_response.status_code != 200:
         logger.error("Failed to fetch users", extra={"correlationId": correlation_id})
@@ -54,12 +51,10 @@ def login_user(login_request: LoginRequest, response: Response):
         logger.error("User not found", extra={"correlationId": correlation_id})
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Verify password using bcrypt
     if not verify_password(login_request.password, user["password"]):
         logger.error("Invalid credentials", extra={"correlationId": correlation_id})
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    # Create JWT token
     user_roles = [USER_ROLES]
     
 
