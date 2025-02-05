@@ -1,71 +1,79 @@
-# from fastapi.testclient import TestClient
-# from unittest.mock import patch, MagicMock
+import unittest
+from unittest.mock import patch, MagicMock
+from fastapi.testclient import TestClient
+from app.main import app  # Assuming FastAPI app is defined in app.main
+from app.routes.authRoute import login_user  # Importing the login function
+from app.utils.verify_password import verify_password
+from app.utils.jwt_rsa import create_access_token
+from app.config import settings
 
-# #print folder path
-# import os
-# import sys
-# print("-----------------TEST-----------------------------------")
-# print('first',sys.path)
+class TestLoginAPI(unittest.TestCase):
 
-# #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../app")))
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../")))
-# print("-----------------TEST21-----------------------------------")
+    def setUp(self):
+        self.client = TestClient(app)
+        self.login_url = "http://auth_service:8001/api/v1/auth/login"
+        self.mock_user = {
+            "id": "12345",
+            "email_id": "test@example.com",
+            "password": "$2b$12$hashedpasswordhere" 
+        }
+        self.valid_request_payload = {
+            "email_id": "test@example.com",
+            "password": "validpassword"
+        }
+    
 
-# print('second',sys.path)
-
-# print("List of directories in sys.path: ../")
-# for path in sys.path:
-#     print(path)
-
-
-# # Function to print all files and folders in a directory recursively
-# def print_directory_contents(path):
-#     for dirpath, dirnames, filenames in os.walk(path):
-#         print(f'Current directory: {dirpath}')
-#         for dirname in dirnames:
-#             print(f'  Subfolder: {dirname}')
-#         for filename in filenames:
-#             print(f'  File: {filename}')
-
-# # Print the contents of each directory in sys.path
-# for path in sys.path:
-#     print(f"Inspecting directory: {path}")
-#   #  print_directory_contents(path)
-
-
-
-# from app.main import app
-
-
-
-
-
-# # print("List of directories in sys.path: ../")
-# # for path in sys.path:
-# #     print(path)
-
-
-# #from app.main import app
-
-# client = TestClient(app)
-
-# def test_login_user():
-#     mock_response = MagicMock()
-#     mock_response.status_code = 200
-#     mock_response.json.return_value = {"id": "12345"}
-
-#     with patch("requests.post", return_value=mock_response) as mock_post, \
-#          patch("app.utils.jwt_rsa.create_access_token", return_value="mock_token") as mock_token:
+    @patch("requests.get")  
+    @patch("app.utils.verify_password.pwd_context.verify")  
+    @patch("app.routes.authRoute.create_access_token")
+    def test_login_success(self, mock_create_token, mock_verify_password, mock_requests_get):
         
-#         response = client.post("/api/v1/auth/login", json={"email_id": "test@example.com", "password": "securepassword"})
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [self.mock_user]
+        mock_requests_get.return_value = mock_response
+        mock_verify_password.return_value = True
+        mock_create_token.return_value = "mocked_jwt_token"
         
-#         assert response.status_code == 200
-#         assert response.json()["access_token"] == "mock_token"
-#         assert response.json()["id"] == "12345"
+        response = self.client.post(self.login_url, json=self.valid_request_payload)
         
-#         mock_post.assert_called_once()
-#         mock_token.assert_called_once()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access_token", response.json())
+        self.assertIn("access_token", response.json())  
+        self.assertIsInstance(response.json()["access_token"], str)  
 
-def test_dummy():
-    """A simple test to verify that testing setup works."""
-    assert 2 > 1
+        mock_requests_get.assert_called_once_with(f"{settings.user_login_service_url}", headers=unittest.mock.ANY)
+        mock_verify_password.assert_called_once_with("validpassword", self.mock_user["password"])
+        
+        self.assertEqual(mock_create_token.call_count, 2)
+    
+
+    @patch("requests.get")
+    def test_login_user_not_found(self, mock_requests_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [] 
+        mock_requests_get.return_value = mock_response
+        
+        response = self.client.post(self.login_url, json=self.valid_request_payload)
+        
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()["detail"], "User not found")
+    
+
+    @patch("requests.get")
+    @patch("app.utils.verify_password.pwd_context.verify")
+    def test_login_invalid_password(self, mock_verify_password, mock_requests_get):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [self.mock_user]
+        mock_requests_get.return_value = mock_response
+        mock_verify_password.return_value = False  
+        
+        response = self.client.post(self.login_url, json=self.valid_request_payload)
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["detail"], "Invalid credentials")
+
+if __name__ == "__main__":
+    unittest.main()
