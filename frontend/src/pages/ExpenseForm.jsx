@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createExpense, updateExpense, getCategories, getCurrencies, getUsers, getExpenseById } from '../services/ExpenseService/expenseService';
 
-const ExpenseForm = ({ onExpenseCreated, isDarkMode }) => {
+const ExpenseForm = ({ onExpenseCreated, isDarkMode, showSharedExpense = false }) => {
     const { expenseId } = useParams();
     const navigate = useNavigate();
     const [alertMessage, setAlertMessage] = useState('');
@@ -200,10 +200,20 @@ const ExpenseForm = ({ onExpenseCreated, isDarkMode }) => {
                             <input type="text" name="description" value={formData.description} onChange={handleChange} className={`w-2/3 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-100': 'bg-white border-gray-300 text-gray-900'}`}/>
                         </div>
                         
+                        {showSharedExpense && (
                         <div className="flex items-center">
-                            <label className={`w-1/3 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Shared Expense</label> 
-                            <input type="checkbox" name="shared_transaction" checked={formData.shared_transaction} onChange={handleChange} className={`h-4 w-4 rounded focus:ring-indigo-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-indigo-400" : "bg-white border-gray-300 text-indigo-600"}`}/>
+                            <label className={`w-1/3 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                Shared Expense
+                            </label>
+                            <input
+                                type="checkbox"
+                                name="shared_transaction"
+                                checked={formData.shared_transaction}
+                                onChange={handleChange}
+                                className={`h-4 w-4 rounded focus:ring-indigo-500 ${isDarkMode ? "bg-gray-700 border-gray-600 text-indigo-400" : "bg-white border-gray-300 text-indigo-600"}`}
+                            />
                         </div>
+                    )}
 
                         <div className="flex items-center">
                             <label className={`w-1/3 text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Transaction Mode<span className="text-red-500">*</span></label>

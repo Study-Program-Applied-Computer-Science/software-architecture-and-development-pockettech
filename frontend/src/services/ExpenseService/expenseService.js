@@ -57,7 +57,6 @@ export const getCategories = async () => {
 
 export const createExpense = async (expenseData) => {
     try {
-        console.log("Sending Expense Data:", JSON.stringify(expenseData, null, 2));
         const response = await axios.post(API_URL, expenseData);
         return response.data;
     } catch (error) {
@@ -68,7 +67,6 @@ export const createExpense = async (expenseData) => {
 
 export const updateExpense = async (expenseId, expenseData) => {
     try {
-        console.log("Sending Expense Data:", JSON.stringify(expenseData, null, 2));
         const response = await axios.put(`${API_URL}/${expenseId}`, expenseData);
         return response.data;
     } catch (error) {
