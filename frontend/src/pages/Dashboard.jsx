@@ -61,11 +61,15 @@ export default function Dashboard({ isDarkMode }) {
     fetchCategoryData();
   }, []);
 
-  // Fetch predicted savings (using a hardcoded userId for demo)
+  // Fetch predicted savings using the user ID from localStorage
   useEffect(() => {
     const getPredictedSavings = async () => {
+      const userId = localStorage.getItem("user_id");
+      if (!userId) {
+        console.error("No user ID found in localStorage.");
+        return;
+      }
       try {
-        const userId = "550e8400-e29b-41d4-a716-446655440000"; // Replace with dynamic user ID as needed
         const data = await fetchPredictedSavings(userId, 3);
         setPredictedSavings(data);
       } catch (error) {
@@ -90,7 +94,9 @@ export default function Dashboard({ isDarkMode }) {
 
   // Prepare chart data for the Bar chart (Weekly Spending)
   const barChartData = {
-    labels: weeklyData.length ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString()) : [],
+    labels: weeklyData.length
+      ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
+      : [],
     datasets: [
       {
         label: "Weekly Spending ($)",
@@ -143,7 +149,6 @@ export default function Dashboard({ isDarkMode }) {
   };
 
   return (
-    // Adding left margin (ml-64) to account for the fixed sidebar width
     <div className="min-h-screen bg-gray-100 p-6 ml-64">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
