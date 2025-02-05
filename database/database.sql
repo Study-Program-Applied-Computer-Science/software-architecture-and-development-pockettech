@@ -87,7 +87,8 @@ DROP TABLE IF EXISTS "FinancePlanner"."Budget";
 CREATE TABLE IF NOT EXISTS "FinancePlanner"."Budget"
 (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    category_id uuid NOT NULL,
+	user_id uuid NOT NULL,
+    category_id integer NOT NULL,
     amount numeric NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
@@ -97,20 +98,12 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Budget"
         REFERENCES "FinancePlanner"."Country" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE RESTRICT,
-    CONSTRAINT "FK_BUDGET_USER_TRANSACTION_CATEGORY__CATEGORY_ID" FOREIGN KEY (category_id)
-        REFERENCES "FinancePlanner"."UserTransactionsCategory" (id) MATCH SIMPLE
+	CONSTRAINT "FK_BUDGET_USER__USER_ID" FOREIGN KEY (user_id)
+        REFERENCES "FinancePlanner"."User" (id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT "FK_BUDGET_TRANSACTION_CATEGORY__CATEGORY_ID" FOREIGN KEY (category_id)
+        REFERENCES "FinancePlanner"."TransactionsCategory" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('Germany', 'EUR', '+49');
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('India', 'INR', '+91');
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('USA', 'USD', '+1');
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Groceries', True);
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Clothes', True);
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Entertainment', True);

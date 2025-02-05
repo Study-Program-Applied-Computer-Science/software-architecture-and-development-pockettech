@@ -6,6 +6,9 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import CreateUserPage from "./pages/CreateUserPage";
+import CreateBudgetPage from './pages/CreateBudgetPage';
+import EditBudgetPage from './pages/EditBudgetPage';
+import BudgetOverviewPage from './pages/BudgetOverviewPage';
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -41,6 +44,11 @@ const App = () => {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/create-user" element={<CreateUserPage />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/budget" element={<BudgetOverviewPage isDarkMode={isDarkMode}/>} />
+          <Route path="/budget/create" element={<CreateBudgetPage isDarkMode={isDarkMode}/>} />
+          <Route path="/budget/edit/:budgetId" element={<EditBudgetPage isDarkMode={isDarkMode}/>} />
+          {/* <Route path="/budget/new" element={<BudgetForm isDarkMode={isDarkMode}/>} />
+          <Route path="/budget/edit/:expenseId" element={<BudgetForm isDarkMode={isDarkMode}/>} /> */}
         </Routes>
       </Layout>
     </Router>

@@ -33,24 +33,21 @@ services:
     depends_on:
       - db
   
-  # budgeting_service:
-  #   build:
-  #     context: ./BudgetingService
-  #   container_name: budgeting_service
-  #   ports:
-  #     - "8003:8003"
-  #   env_file:
-  #     - ./BudgetingService/.env
-  #   volumes:
-  #     - ./common:/common/common
-  #     - ./BudgetingService:/app
-  #   environment:
-  #     - PYTHONPATH=/app:/common
-  #     - ELASTIC_ENDPOINT=${ELASTIC_ENDPOINT}  # Your Elasticsearch endpoint
-  #     - ELASTIC_USERNAME=${ELASTIC_USERNAME}  # Your Elasticsearch username
-  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}  # Your Elasticsearch password
-  #   depends_on:
-  #     - db
+  budgeting_service:
+    build:
+      context: ./BudgetingService
+    container_name: budgeting_service
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./BudgetingService/.env
+    volumes:
+      - ./common:/common/common
+      - ./BudgetingService:/app
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
 
   db:
     image: postgres:15
@@ -58,9 +55,9 @@ services:
     env_file:
       - ./.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
