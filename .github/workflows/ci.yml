@@ -140,6 +140,15 @@ jobs:
         echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
         gcloud container clusters get-credentials finance-planner-cluster --region europe-southwest1 --project ${{ secrets.GCP_PROJECT_ID }}
 
+    - name: Create GHCR Secret in GKE
+      run: |
+        kubectl create secret docker-registry ghcr-secret \
+          --docker-server=https://ghcr.io \
+          --docker-username=${{ github.actor }} \
+          --docker-password=${{ secrets.GHCR_PAT }} \
+          --docker-email=youremail@example.com \
+          --dry-run=client -o yaml | kubectl apply -f -
+          
     - name: Deploy to GCP
       run: |
         kubectl apply -f k8s/auth_service.yaml
