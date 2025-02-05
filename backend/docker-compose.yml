@@ -1,18 +1,56 @@
 version: '3.8'
 
 services:
+  auth_service:
+    build:
+      context: ./AuthService
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./AuthService/.env
+    volumes:
+      - ./common:/common/common
+      - ./AuthService:/app  
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+
   user_login_service:
     build:
-      context: ./UserLoginService
+      context: ./UserService
     container_name: user_login_service
     ports:
       - "8002:8002"
     env_file:
-      - ./UserLoginService/.env
+      - ./UserService/.env
     volumes:
-      - ./UserLoginService:/app
+      - ./common:/common/common
+      - ./UserService:/app
+    environment:
+      - PYTHONPATH=/app:/common
     depends_on:
       - db
+  
+  # budgeting_service:
+  #   build:
+  #     context: ./BudgetingService
+  #   container_name: budgeting_service
+  #   ports:
+  #     - "8003:8003"
+  #   env_file:
+  #     - ./BudgetingService/.env
+  #   volumes:
+  #     - ./common:/common/common
+  #     - ./BudgetingService:/app
+  #   environment:
+  #     - PYTHONPATH=/app:/common
+  #     - ELASTIC_ENDPOINT=${ELASTIC_ENDPOINT}  # Your Elasticsearch endpoint
+  #     - ELASTIC_USERNAME=${ELASTIC_USERNAME}  # Your Elasticsearch username
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}  # Your Elasticsearch password
+  #   depends_on:
+  #     - db
 
   db:
     image: postgres:15
@@ -27,6 +65,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql  # Load schema creation script
 
 volumes:
   db_data:

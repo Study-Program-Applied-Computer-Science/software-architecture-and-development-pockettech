@@ -21,6 +21,7 @@ export default function LoginPage({ isDarkMode }) {
       const data = await loginUser(email, password);
       setSuccess("Login successful!");
       console.log("Response Data:", data);
+      localStorage.setItem("user_id", data.id);
       alert("Login successful!");
       navigate("/dashboard"); // Navigate to the dashboard page on success
     } catch (err) {
@@ -105,7 +106,7 @@ export default function LoginPage({ isDarkMode }) {
         <p className="text-sm text-center mt-4">
           Don’t have an account?{" "}
           <a
-            href="#"
+            href="/create-user"
             className={`${
               isDarkMode
                 ? "text-blue-400 hover:underline"
