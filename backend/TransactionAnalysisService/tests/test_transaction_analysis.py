@@ -27,12 +27,12 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def db_session():
     """Creates a new database session for each test."""
-    Base.metadata.create_all(bind=engine)  # Ensure tables exist
+    Base.metadata.create_all(bind=engine)  
     db = TestingSessionLocal()
     yield db
-    db.rollback()  # Rollback to prevent data leaks between tests
+    db.rollback()  
     db.close()
-    Base.metadata.drop_all(bind=engine)  # Clean up after each test
+    Base.metadata.drop_all(bind=engine)  
 
 # Helper function to add dummy transactions
 def add_dummy_transactions(db):
@@ -46,14 +46,14 @@ def add_dummy_transactions(db):
             currency_code="USD",
             transaction_mode="card",
             shared_transaction=False,
-            category=1,  # Reference to TransactionsCategory
+            category=1,  
         )
         for i in range(15)
     ]
     db.add_all(transactions)
     db.commit()
 
-# Helper function to add dummy categories
+#Helper function to add dummy categories
 def add_dummy_categories(db):
     categories = [
         TransactionsCategory(id=1, category="Food", expense=True),
@@ -62,29 +62,29 @@ def add_dummy_categories(db):
     db.add_all(categories)
     db.commit()
 
-# ✅ Test fetching last 10 transactions
+#Test fetching last 10 transactions
 def test_get_last_10_transactions(db_session):
     add_dummy_transactions(db_session)
     transactions = get_last_10_transactions(db_session)
 
-    assert len(transactions) == 10  # Should return only the last 10
-    assert transactions[0]["heading"] == "Test Transaction 0"  # Most recent transaction
+    assert len(transactions) == 10  
+    assert transactions[0]["heading"] == "Test Transaction 0"  
 
-# ✅ Test fetching transactions from the last week
+#Test fetching transactions from the last week
 def test_get_last_week_transactions(db_session):
     add_dummy_transactions(db_session)
     transactions = get_last_week_transactions(db_session)
 
-    assert len(transactions) > 0  # Should return transactions
+    assert len(transactions) > 0  
     now = datetime.utcnow().replace(tzinfo=pytz.UTC)
     assert all(now - txn["timestamp"] <= timedelta(days=7) for txn in transactions)
 
-# ✅ Test fetching total expenses by category
+#Test fetching total expenses by category
 def test_get_expenses_by_category(db_session):
     add_dummy_categories(db_session)
     add_dummy_transactions(db_session)
 
     expenses = get_expenses_by_category(db_session)
 
-    assert len(expenses) > 0  # Should return at least one category
-    assert expenses[0].category == "Food"  # Ensure correct category
+    assert len(expenses) > 0 
+    assert expenses[0].category == "Food"  

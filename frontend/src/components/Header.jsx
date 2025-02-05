@@ -9,10 +9,7 @@ const Header = ({ isDarkMode, themeSwitch }) => {
         isDarkMode ? "bg-gray-900 text-white" : "bg-blue-50 text-gray-900"
       }`}
     >
-      {/* Left: FinancePlanner Title */}
       <h1 className="text-xl font-bold">FinancePlanner</h1>
-
-      {/* Right: Theme Toggle */}
       <button
         onClick={themeSwitch}
         className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${

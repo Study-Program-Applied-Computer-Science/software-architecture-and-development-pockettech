@@ -30,12 +30,10 @@ def setup_logger():
     logger = logging.getLogger(SERVICE_NAME)
     logger.setLevel(logging.INFO)
 
-    # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
     logger.addHandler(console_handler)
 
-    # Elasticsearch handler
     if ELASTIC_ENDPOINT:
         es_handler = ElasticsearchHandler()
         es_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))

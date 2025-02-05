@@ -8,7 +8,6 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }) => {
-  // ... your protected route logic here
   return children;
 };
 

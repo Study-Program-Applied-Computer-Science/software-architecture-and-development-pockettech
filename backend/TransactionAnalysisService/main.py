@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine
-from app.routes.transaction_analysis import router as transaction_analysis_router  # Import the router
+from app.routes.transaction_analysis import router as transaction_analysis_router
 
 # Import models before calling metadata.create_all
-from app.models.country import Country  # Ensure country model is imported
-from app.models.transactionCategory import TransactionsCategory  # Ensure user transaction category model is imported
-from app.models.user import User  # Ensure users model is imported
+from app.models.country import Country  
+from app.models.transactionCategory import TransactionsCategory 
+from app.models.user import User  
 from app.models.transaction import Transaction
 
 # Import logging setup
@@ -39,7 +39,8 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     )
 
 # CORS setup
-origins = ["http://localhost:3000"]  # Update as per frontend origin
+# Update as per frontend origin
+origins = ["http://localhost:3000"]  
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

@@ -9,7 +9,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 export default function Dashboard({ isDarkMode }) {
   const [transactions, setTransactions] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
-  const [categoryData, setCategoryData] = useState([]); // For storing category data
+  const [categoryData, setCategoryData] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   // Fetch latest transactions
@@ -45,7 +45,7 @@ export default function Dashboard({ isDarkMode }) {
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
-        const data = await fetchExpensesByCategory(); // Fetch category expenses from your API
+        const data = await fetchExpensesByCategory(); 
         setCategoryData(data);
       } catch (error) {
         console.error("Error fetching category expenses:", error);
@@ -55,7 +55,7 @@ export default function Dashboard({ isDarkMode }) {
     fetchCategoryData();
   }, []);
 
-  // Prepare chart data for the Bar chart (Weekly Spending)
+  //Chart data for the Bar chart (Weekly Spending)
   const chartData = {
     labels: weeklyData.length
       ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
@@ -98,7 +98,7 @@ export default function Dashboard({ isDarkMode }) {
           "rgba(75, 192, 192, 0.6)",
           "rgba(153, 102, 255, 0.6)",
           "rgba(255, 159, 64, 0.6)",
-        ], // You can customize these colors
+        ], 
         borderColor: "#ffffff",
         borderWidth: 1,
       },
@@ -116,7 +116,6 @@ export default function Dashboard({ isDarkMode }) {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="flex">
-        {/* Sidebar */}
         <aside
           className={`${
             isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"

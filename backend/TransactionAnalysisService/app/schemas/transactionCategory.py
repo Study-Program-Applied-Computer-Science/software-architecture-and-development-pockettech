@@ -12,7 +12,7 @@ class UserTransactionsCategoryCreate(UserTransactionsCategoryBase):
 
 class UserTransactionsCategoryResponse(UserTransactionsCategoryBase):
     id: int
-    total_amount: float  # Add total_amount here to represent the sum of transaction amounts.
+    total_amount: float  
 
     class Config:
-        orm_mode = True  # This ensures SQLAlchemy models are properly serialized into Pydantic models
+        orm_mode = True 
