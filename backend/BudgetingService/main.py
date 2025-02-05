@@ -2,7 +2,9 @@ from datetime import datetime
 import os
 import uuid
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 import uvicorn
 from common.config.logging import setup_logger
 from common.config.correlation import CorrelationIdMiddleware
@@ -37,6 +39,13 @@ logger = setup_logger(SERVICE_NAME)
 # Add Correlation ID Middleware
 app.add_middleware(CorrelationIdMiddleware)
 
+# Add the exception handler for rate limit exceeded
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."},
+    )
 
 # Include routers
 app.include_router(budget_router, prefix="/budget", tags=["budget"])

@@ -2,7 +2,7 @@ import uuid
 import os
 from dotenv import load_dotenv
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.schemas.budget import BudgetBaseResponse, BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
@@ -10,12 +10,18 @@ from app.db.database import get_db
 from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_transactions_by_user_id_and_date_budgets, update_budget
 from common.config.logging import setup_logger
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 router = APIRouter()
 
 load_dotenv()
 SERVICE_NAME = os.getenv("SERVICE_NAME")
 
 logger = setup_logger(SERVICE_NAME)
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 #get all budgets
 @router.get("/", response_model=list[BudgetResponse])
@@ -71,7 +77,8 @@ def create_budget_route(budget: BudgetCreate, db: Session = Depends(get_db)):
 
 #update a budget
 @router.put("/{id}", response_model=BudgetBaseResponse)
-def update_budget_route(id: uuid.UUID, budget: BudgetBaseResponse, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")  # Allow 5 requests per minute
+def update_budget_route(request: Request, id: uuid.UUID, budget: BudgetBaseResponse, db: Session = Depends(get_db)):
     try:
         logger.info(f"Updating budget with id: {id}")
         return update_budget(db, id, budget)
