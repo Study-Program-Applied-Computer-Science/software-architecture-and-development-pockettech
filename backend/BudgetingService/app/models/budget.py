@@ -1,5 +1,6 @@
 import os
 import uuid
+
 from dotenv import load_dotenv
 
 from sqlalchemy import Column, ForeignKey, Numeric, Date
@@ -17,7 +18,8 @@ class Budget(Base):
     __table_args__ = {"schema": DB_SCHEMA}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    category_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.UserTransactionsCategory.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey(f"{DB_SCHEMA}.User.id"), nullable=False)
+    category_id = Column(ForeignKey(f"{DB_SCHEMA}.TransactionsCategory.id"), nullable=False)
     amount = Column(Numeric, nullable=False)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)

@@ -1,5 +1,5 @@
 import os
-import uuid
+
 from dotenv import load_dotenv
 
 from sqlalchemy import Column, Integer, String
