@@ -107,15 +107,3 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Budget"
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('Germany', 'EUR', '+49');
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('India', 'INR', '+91');
-
-INSERT INTO "FinancePlanner"."Country"(country, currency, phone_code) VALUES ('USA', 'USD', '+1');
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Groceries', True);
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Clothes', True);
-
-INSERT INTO "FinancePlanner"."TransactionsCategory"(category, expense) VALUES ('Entertainment', True);

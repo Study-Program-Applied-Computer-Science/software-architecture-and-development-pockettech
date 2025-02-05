@@ -1,0 +1,154 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - jyoti/feature/user-login
+  pull_request:
+    branches:
+      - jyoti/feature/user-login
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # List project files for debugging (helps confirm that files exist)
+    - name: List project files for debugging
+      run: ls -R
+
+    # Move into the backend folder
+    - name: Change working directory to backend
+      run: cd backend
+
+    # List project files for debugging (helps confirm that files exist)
+    - name: List project files for debugging
+      run: ls -R
+
+    # Set up Private and Public Keys
+    - name: Setup Private and Public Keys
+      run: |
+        mkdir -p backend/AuthService/app/keys
+        echo "${{ secrets.PRIVATE_KEY_B64 }}" | base64 --decode > backend/AuthService/app/keys/private_key.pem
+        echo "${{ secrets.PUBLIC_KEY_B64 }}" | base64 --decode > backend/AuthService/app/keys/public_key.pem
+
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    # Set up environment variables
+    - name: Set environment variables
+      run: |
+        echo "${{ secrets.AUTH_SERVICE_ENV }}" > backend/AuthService/.env
+        echo "${{ secrets.USER_LOGIN_SERVICE_ENV }}" > backend/UserService/.env
+
+    # Install Docker
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    # Build and Test AuthService
+    - name: Build AuthService
+      run: |
+        docker build -t auth_service backend/AuthService
+    - name: Debug AuthService Container
+      run: |
+        docker run --rm auth_service ls -R /app
+    - name: Run AuthService Tests
+      run: |
+        docker run --rm --env-file backend/AuthService/.env auth_service pytest /app/tests --disable-warnings
+
+    # Build and Test UserService
+    - name: Build UserService
+      run: |
+        docker build -t user_login_service backend/UserService
+    - name: Run UserService Tests
+      run: |
+        docker run --rm --env-file backend/UserService/.env user_login_service pytest /app/tests --disable-warnings
+
+    # Log in to GitHub Container Registry (GHCR)
+    - name: Log in to GitHub Container Registry
+      run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+
+    # Convert repository name to lowercase
+    - name: Set Lowercase Repository Name
+      run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+    # Tag and Push AuthService Image
+    - name: Tag and Push AuthService Image
+      run: |
+        docker tag auth_service ghcr.io/${{ env.REPO_NAME }}/auth_service:latest
+        docker push ghcr.io/${{ env.REPO_NAME }}/auth_service:latest
+
+    # Tag and Push UserService Image
+    - name: Tag and Push UserService Image
+      run: |
+        docker tag user_login_service ghcr.io/${{ env.REPO_NAME }}/user_login_service:latest
+        docker push ghcr.io/${{ env.REPO_NAME }}/user_login_service:latest
+
+    # Run Linting (Optional)
+    - name: Lint Code
+      run: |
+        pip install flake8
+        flake8 backend/AuthService backend/UserService --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    # Deploy to GCP
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Install Google Cloud SDK
+      run: |
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+        curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+        sudo apt-get update
+        sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+
+    - name: Install gke-gcloud-auth-plugin
+      run: |
+        sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+
+    - name: Configure kubectl to use gke-gcloud-auth-plugin
+      run: |
+        echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+        gcloud container clusters get-credentials finance-planner-cluster --region europe-southwest1 --project ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Create GHCR Secret in GKE
+      run: |
+        kubectl create secret docker-registry ghcr-secret \
+          --docker-server=https://ghcr.io \
+          --docker-username=${{ github.actor }} \
+          --docker-password=${{ secrets.GHCR_PAT }} \
+          --docker-email=youremail@example.com \
+          --dry-run=client -o yaml | kubectl apply -f -
+          
+    - name: Deploy to GCP
+      run: |
+        kubectl apply -f k8s/auth_service.yaml

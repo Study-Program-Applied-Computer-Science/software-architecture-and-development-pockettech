@@ -4,6 +4,8 @@ import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import UserProfile from "./pages/UserProfile";
+import CreateUserPage from "./pages/CreateUserPage";
 import CreateBudgetPage from './pages/CreateBudgetPage';
 import EditBudgetPage from './pages/EditBudgetPage';
 import BudgetOverviewPage from './pages/BudgetOverviewPage';
@@ -39,6 +41,8 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
           <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/create-user" element={<CreateUserPage />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/budget" element={<BudgetOverviewPage isDarkMode={isDarkMode}/>} />
           <Route path="/budget/create" element={<CreateBudgetPage isDarkMode={isDarkMode}/>} />

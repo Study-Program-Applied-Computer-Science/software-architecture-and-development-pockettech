@@ -1,6 +1,12 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8002";
+const BASE_URL = "http://localhost:8001";
+
+
+const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true, // Include credentials (cookies)
+});
 
 /**
  * Login user
@@ -11,7 +17,7 @@ const BASE_URL = "http://localhost:8002";
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await axios.post(`${BASE_URL}/user/verifyuser`, {
+    const response = await axiosInstance.post(`${BASE_URL}/api/v1/auth/login`, {
       email_id: email,
       password: password,
     });
