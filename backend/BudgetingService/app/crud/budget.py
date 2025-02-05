@@ -14,6 +14,7 @@ from app.models.budget import Budget
 from app.models.transactionsCategory import TransactionsCategory
 from app.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetUpdate
+from app.models.country import Country
 from app.utils.jwt_rsa import create_access_token
 
 from common.config.logging import setup_logger
@@ -65,8 +66,9 @@ def get_budget_by_id(db: Session, budget_id: uuid.UUID):
     ).filter(
         Budget.id == budget_id
     )
- 
+
     return query.first()
+
 
 
 #get all budgets by user_id
@@ -278,6 +280,7 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
 
 def get_all_currencies(db: Session):
     return db.query(Country).all()
- 
+
+  
 def get_all_categories(db: Session):
     return db.query(TransactionsCategory).all()
