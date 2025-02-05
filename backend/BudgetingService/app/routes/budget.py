@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.schemas.budget import BudgetBaseResponse, BudgetCreate, BudgetResponse, BudgetUpdate, Budgets
 from app.db.database import get_db
-from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_transactions_by_user_id_and_date_budgets, update_budget
+from app.crud.budget import create_budget, delete_budget, get_all_budgets, get_all_budgets_by_user_id, get_all_budgets_by_user_id_and_date, get_all_categories, get_all_currencies, get_all_transactions_by_user_id_and_date_budgets, get_budget_by_id, update_budget
+from app.schemas.country import CountryResponse
+from app.schemas.transactionsCategory import TransactionsCategoryResponse
 from common.config.logging import setup_logger
 
 from slowapi import Limiter
@@ -35,7 +37,7 @@ def get_all_budgets_route(db: Session = Depends(get_db)):
 
 
 #get all budgets of user_id
-@router.get("/{user_id}", response_model=list[BudgetResponse])
+@router.get("/userbudgets/{user_id}", response_model=list[BudgetResponse])
 def get_all_budgets_by_user_id_route(user_id: uuid.UUID, db: Session = Depends(get_db)):
     logger.info(f"Getting all budgets for user_id: {user_id}")
     try:
@@ -111,3 +113,39 @@ def get_all_transactions_by_user_id_and_date_budgets_route(user_id: uuid.UUID, s
         logger.error(f"Budgets not found for user_id: {user_id} and date range: {start_date} to {end_date}")
         raise HTTPException(status_code=404, detail="Budgets not found for this user and date range")
     return budgets
+
+
+#router for get budget by id
+@router.get("/getbudget/{id}", response_model=BudgetResponse)
+def get_budget_by_id_route(id: uuid.UUID, db: Session = Depends(get_db)):
+    logger.info(f"Getting budget with id: {id}")
+    try:
+        budget = get_budget_by_id(db, id)
+    except Exception as e:
+        logger.error(f"Failed to get budget: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    if not budget:
+        logger.error(f"Budget not found with id: {id}")
+        raise HTTPException(status_code=404, detail="Budget not found")
+    return budget
+
+
+@router.get("/categories", response_model=list[TransactionsCategoryResponse])
+def get_all_categories_route(db: Session = Depends(get_db)):
+    logger.info("Getting all categories")
+    try:
+        print("Getting all categories", get_all_categories(db))
+        return get_all_categories(db)
+    except Exception as e:
+        logger.error(f"Failed to get categories: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+   
+ 
+@router.get("/currencies", response_model=list[CountryResponse])
+def get_all_currencies_route(db: Session = Depends(get_db)):
+    logger.info("Getting all currencies")
+    try:
+        return get_all_currencies(db)
+    except Exception as e:
+        logger.error(f"Failed to get currencies: {e}")
+        raise HTTPException(status_code=400, detail=str(e))

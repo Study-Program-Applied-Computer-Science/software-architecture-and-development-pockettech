@@ -1,17 +1,17 @@
 from pydantic import BaseModel
-
-
-class UserTransactionsCategoryBase(BaseModel):
+ 
+ 
+class TransactionsCategoryBase(BaseModel):
     category: str
     expense: bool
-
-
-class UserTransactionsCategoryCreate(UserTransactionsCategoryBase):
+ 
+ 
+class TransactionsCategoryCreate(TransactionsCategoryBase):
     pass
-
-
-class UserTransactionsCategoryResponse(UserTransactionsCategoryBase):
+ 
+ 
+class TransactionsCategoryResponse(TransactionsCategoryBase):
     id: int
-
+ 
     class Config:
         orm_mode = True

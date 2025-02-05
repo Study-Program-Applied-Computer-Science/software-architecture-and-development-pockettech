@@ -1,4 +1,11 @@
+from datetime import datetime
 import uuid
+import os
+from dotenv import load_dotenv
+from fastapi import HTTPException
+import requests
+from app.models.country import Country
+import jwt
 
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
@@ -7,6 +14,17 @@ from app.models.budget import Budget
 from app.models.transactionsCategory import TransactionsCategory
 from app.models.transaction import Transaction
 from app.schemas.budget import BudgetCreate, BudgetUpdate
+from app.utils.jwt_rsa import create_access_token
+
+from common.config.logging import setup_logger
+from common.utils.http_client import make_request
+from common.config.correlation import get_correlation_id
+from common.config.constants import USER_ROLES, BUDGETING_SERVICE_ROLE, TRANSACTION_SERVICE_URL
+
+load_dotenv()
+SERVICE_NAME = os.getenv("SERVICE_NAME")
+
+logger = setup_logger(SERVICE_NAME)
 
 
 #get all budgets
@@ -27,6 +45,28 @@ def get_all_budgets(db: Session):
     )
 
     return query.all()
+
+
+#get a budget by id
+def get_budget_by_id(db: Session, budget_id: uuid.UUID):
+    query = db.query(
+        Budget.id,
+        Budget.user_id,
+        Budget.category_id,
+        Budget.amount,
+        Budget.start_date,
+        Budget.end_date,
+        Budget.currency_id,
+        TransactionsCategory.category,
+        TransactionsCategory.expense
+    ).join(
+        TransactionsCategory,
+        Budget.category_id == TransactionsCategory.id
+    ).filter(
+        Budget.id == budget_id
+    )
+ 
+    return query.first()
 
 
 #get all budgets by user_id
@@ -135,37 +175,63 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
         Budget.category_id == TransactionsCategory.id
     ).filter(
         Budget.user_id == user_id,
-        (Budget.start_date <= start_date) & (Budget.end_date >= end_date)
+        (Budget.start_date >= start_date) & (Budget.end_date <= end_date)
     )
     budgets = budgets_query.all()
     budgets_transactions = []
     for budget in budgets:
-        transactions_query = db.query(
-            Transaction.id,
-            Transaction.timestamp,
-            Transaction.recording_user_id,
-            Transaction.credit_user_id,
-            Transaction.debit_user_id,
-            Transaction.other_party,
-            Transaction.heading,
-            Transaction.description,
-            Transaction.transaction_mode,
-            Transaction.shared_transaction,
-            Transaction.category,
-            Transaction.amount,
-            Transaction.currency_code
-        ).filter(
-            and_(
-                Transaction.category == budget.category_id,
-                or_(
-                    Transaction.debit_user_id == user_id,
-                    Transaction.credit_user_id == user_id
-                ),
-                Transaction.timestamp >= start_date,
-                Transaction.timestamp <= end_date
-            )
-        )
-        transactions = transactions_query.all()
+
+        correlation_id = get_correlation_id()
+        logger.info("Transactions details", extra={"correlationId   ": correlation_id})
+
+        budgeting_service_role = [BUDGETING_SERVICE_ROLE]
+
+        budgeting_service_token_payload = {
+            "id": BUDGETING_SERVICE_ROLE,
+            "roles": budgeting_service_role,
+            "iat": int(datetime.now().timestamp())
+            }
+        
+        budgeting_service_token = create_access_token(budgeting_service_token_payload)
+
+        headers = {"Authorization": f"Bearer {budgeting_service_token}",
+        "X-Correlation-ID": correlation_id}
+
+        print("headers for auth_service_token",headers)
+        transaction_service_response = requests.get(f"{TRANSACTION_SERVICE_URL}/category-date/{user_id}/{budget.category_id}/{start_date}/{end_date}", headers=headers)
+
+        if transaction_service_response.status_code != 200:
+            logger.error("Failed to fetch transactions for the budget", extra={"correlationId": correlation_id})
+            raise HTTPException(status_code=transaction_service_response.status_code, detail="Failed to fetch transactions")
+        
+        transactions = transaction_service_response.json()
+
+        # transactions_query = db.query(
+        #     Transaction.id,
+        #     Transaction.timestamp,
+        #     Transaction.recording_user_id,
+        #     Transaction.credit_user_id,
+        #     Transaction.debit_user_id,
+        #     Transaction.other_party,
+        #     Transaction.heading,
+        #     Transaction.description,
+        #     Transaction.transaction_mode,
+        #     Transaction.shared_transaction,
+        #     Transaction.category,
+        #     Transaction.amount,
+        #     Transaction.currency_code
+        # ).filter(
+        #     and_(
+        #         Transaction.category == budget.category_id,
+        #         or_(
+        #             Transaction.debit_user_id == user_id,
+        #             Transaction.credit_user_id == user_id
+        #         ),
+        #         Transaction.timestamp >= start_date,
+        #         Transaction.timestamp <= end_date
+        #     )
+        # )
+        # transactions = transactions_query.all()
         transactions_list = []
         total_amount = 0.0
         for transaction in transactions:
@@ -208,3 +274,10 @@ def get_all_transactions_by_user_id_and_date_budgets(db: Session, user_id: uuid.
             "total_amount": total_amount
         })
     return budgets_transactions
+
+
+def get_all_currencies(db: Session):
+    return db.query(Country).all()
+ 
+def get_all_categories(db: Session):
+    return db.query(TransactionsCategory).all()

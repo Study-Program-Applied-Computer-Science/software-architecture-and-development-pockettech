@@ -13,10 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import Base, engine
 from app.routes.budget import router as budget_router
+from app.routes.publicKeyRoute import router as public_key_router
+from app.db.init_db import init_db
 
 
 Base.metadata.create_all(bind=engine)
 
+init_db()
 
 app = FastAPI()
 
@@ -49,6 +52,7 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
 
 # Include routers
 app.include_router(budget_router, prefix="/budget", tags=["budget"])
+app.include_router(public_key_router)
 
 @app.get("/")
 def read_root():
