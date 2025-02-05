@@ -10,6 +10,8 @@ COPY ./tests /app/tests
 
 COPY requirements.txt /app
 
+ENV PYTHONPATH=/app:/common
+
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
