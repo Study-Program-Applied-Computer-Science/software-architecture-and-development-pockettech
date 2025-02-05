@@ -32,6 +32,29 @@ export const updateUser = async (userId, userData) => {
   }
 };
 
+// delete user
+export const deleteUser = async (userId) => {
+  try {
+    const response = await userAxiosInstance.delete(`/api/v1/user/${userId}`);
+    return response.status; // returns the response status (204 if successful)
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// Logout User
+export const logoutUser = () => {
+  // Clear user-related data (like token) from localStorage
+  localStorage.removeItem("user_id");
+  //localStorage.removeItem("access_token");
+
+  // Remove the access token from cookies
+  document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
+  // Redirect to login page or another page
+  window.location.href = "/"; // Update with your actual login URL
+};
+
 
 
 

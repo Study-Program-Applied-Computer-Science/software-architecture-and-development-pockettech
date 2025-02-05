@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getUserDetails } from "../services/UserService/userService"; // Import the getUserDetails service
-import { updateUser } from "../services/UserService/userService"; // Import the updateUser service
+import { getUserDetails, updateUser, deleteUser } from "../services/UserService/userService"; // Import deleteUser
+import { logoutUser } from "../services/UserService/userService"; // Import logoutUser
 
 const UserProfile = () => {
   const [userDetails, setUserDetails] = useState(null);
@@ -77,6 +77,25 @@ const UserProfile = () => {
     }
   };
 
+  const handleDelete = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const userId = localStorage.getItem("user_id");
+      await deleteUser(userId); // Call deleteUser service
+      logoutUser(); // Logout user after deletion
+    } catch (err) {
+      setError(err.message || "Failed to delete user.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logoutUser(); // Call logoutUser service
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <div className="flex items-center justify-center min-h-screen">
@@ -102,7 +121,7 @@ const UserProfile = () => {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block font-medium">Email</label>
                     <input
@@ -152,6 +171,20 @@ const UserProfile = () => {
                   >
                     Edit Profile
                   </button>
+                  <div className="mt-4">
+                    <button
+                      onClick={handleDelete}
+                      className="bg-red-500 text-white py-2 px-4 rounded"
+                    >
+                      Delete Account
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-gray-500 text-white py-2 px-4 rounded ml-4"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
