@@ -10,7 +10,7 @@ services:
       env_file:
         - ./SharedExpensesService/.env
       volumes:
-        - ./common:/common
+        - ./common:/common/common
         - ./SharedExpensesService:/app
       environment:
         - PYTHONPATH=/app:/common

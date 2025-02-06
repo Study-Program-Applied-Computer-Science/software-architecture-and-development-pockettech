@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.crud import shared_transaction as crud
@@ -15,7 +15,6 @@ from app.crud.shared_transaction import get_all_categories, get_all_currencies
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from common.config.logging import setup_logger
-from common.utils.http_client import make_request
 from common.config.correlation import get_correlation_id
 from dotenv import load_dotenv
 import os
@@ -31,6 +30,7 @@ limiter = Limiter(key_func=get_remote_address)
 @router.put("/repay_shared_transaction/{shared_transaction_id}", response_model=SharedTransaction)
 @limiter.limit("5/minute") 
 def repay_shared_transaction(
+    request: Request,
     shared_transaction_id: UUID,
     db: Session = Depends(get_db)
 ):

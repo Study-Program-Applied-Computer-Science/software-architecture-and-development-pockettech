@@ -24,7 +24,7 @@ export const getUsers = async () => {
 
 export const getCategories = async () => {
   try {
-      const response = await axios.get(`${API_BASE_URL}/categories`);
+      const response = await axios.get(`${API_BASE_URL}categories`);
       return response.data;
   } catch (error) {
       console.error('Error fetching categories:', error);
@@ -34,7 +34,7 @@ export const getCategories = async () => {
 
 export const getCurrencies = async () => {
   try {
-      const response = await axios.get(`${API_BASE_URL}/currencies`);
+      const response = await axios.get(`${API_BASE_URL}currencies`);
       return response.data;
   } catch (error) {
       console.error('Error fetching currencies:', error);

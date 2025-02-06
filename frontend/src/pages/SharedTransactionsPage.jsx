@@ -36,36 +36,38 @@ const SharedTransactionsPage = () => {
   if (loading) return <div className="text-center py-4">Loading...</div>;
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-4">Shared Transactions for Group ID: {groupId}</h1>
+    <div className="container mx-auto px-4 py-6 bg-white dark:bg-gray-800">
+      <h1 className="text-3xl font-bold mb-4 text-black dark:text-white">
+        Shared Transactions for Group ID: {groupId}
+      </h1>
 
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+      <table className="min-w-full bg-white dark:bg-gray-700 border border-gray-200 rounded-lg shadow-md">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="px-4 py-2 border-b text-left">Transaction ID</th>
-            <th className="px-4 py-2 border-b text-left">Group User Main</th>
-            <th className="px-4 py-2 border-b text-left">Group User Sub</th>
-            <th className="px-4 py-2 border-b text-left">Share Value</th>
-            <th className="px-4 py-2 border-b text-left">Payment Status</th>
-            <th className="px-4 py-2 border-b text-left">Repayment Status</th>
+          <tr className="bg-gray-100 dark:bg-gray-600">
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Transaction ID</th>
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Group User Main</th>
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Group User Sub</th>
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Share Value</th>
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Payment Status</th>
+            <th className="px-4 py-2 border-b text-left text-black dark:text-white">Repayment Status</th>
           </tr>
         </thead>
         <tbody>
           {Array.isArray(transactions) && transactions.length > 0 ? (
             transactions.map((transaction) => (
-              <tr key={transaction.id} className="border-b">
-                <td className="px-4 py-2">{transaction.transaction_id}</td>
-                <td className="px-4 py-2">{transaction.group_user_name_main}</td>
-                <td className="px-4 py-2">{transaction.group_user_name_sub}</td>
-                <td className="px-4 py-2">{transaction.share_value}</td>
-                <td className="px-4 py-2">{transaction.payment_status}</td>
-                <td className="px-4 py-2">
+              <tr key={transaction.id} className="border-b dark:border-gray-600">
+                <td className="px-4 py-2 text-black dark:text-white">{transaction.transaction_id}</td>
+                <td className="px-4 py-2 text-black dark:text-white">{transaction.group_user_name_main}</td>
+                <td className="px-4 py-2 text-black dark:text-white">{transaction.group_user_name_sub}</td>
+                <td className="px-4 py-2 text-black dark:text-white">{transaction.share_value}</td>
+                <td className="px-4 py-2 text-black dark:text-white">{transaction.payment_status}</td>
+                <td className="px-4 py-2 text-black dark:text-white">
                   {transaction.repayment_transaction_id ? (
                     "Paid"
                   ) : (
                     <button
                       onClick={() => handleRepaymentUpdate(transaction.id)}
-                      className="text-blue-500 hover:text-blue-700"
+                      className="text-blue-500 dark:text-blue-300 hover:text-blue-700"
                     >
                       Update Repayment
                     </button>
@@ -75,7 +77,7 @@ const SharedTransactionsPage = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="text-center py-4">
+              <td colSpan="7" className="text-center py-4 text-black dark:text-white">
                 No transactions found.
               </td>
             </tr>
@@ -85,8 +87,8 @@ const SharedTransactionsPage = () => {
 
       <div className="mt-4">
         <Link
-          to="/CreateSharedTransactionPage"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          to={`/CreateSharedTransactionPage/${groupId}`}  // Pass groupId in the URL
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-600"
         >
           Create New Shared Transaction
         </Link>

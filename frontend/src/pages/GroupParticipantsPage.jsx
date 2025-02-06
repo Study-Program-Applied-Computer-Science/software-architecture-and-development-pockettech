@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import GroupParticipantsService from "../services/SharedExpensesService/GroupParticipantsService";
-import { useNavigate } from "react-router-dom";
 
 const GroupParticipantsPage = () => {
   const [groups, setGroups] = useState([]);
@@ -10,32 +10,24 @@ const GroupParticipantsPage = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [newParticipant, setNewParticipant] = useState("");
 
-
-  
-  const handleNavigate = () => {
-    if (selectedGroup) {
-      navigate(`/SharedTransactionsPage/${selectedGroup}`);
-    } else {
-      alert("Please select a group first.");
-    }
-  };
-
-  const API_URL = "http://127.0.0.1:8004/shared-group";
-
-
-//TODO at session management
-  const participantId = "afa42e1a-628f-4a06-9771-47e85344ca85"; 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const participantId = location.state?.userId; 
+  const API_URL = "http://localhost:8004/shared-group";
 
   useEffect(() => {
-    fetchGroups(participantId);
-  }, []);
+    if (participantId) fetchGroups(participantId);
+  }, [participantId]);
 
   const fetchGroups = async (participantId) => {
     try {
-      const data = await GroupParticipantsService.getGroups(participantId);
+      const response = await fetch(`${API_URL}/shared_groups/${participantId}`);
+      if (!response.ok) throw new Error("Error fetching groups");
+
+      const data = await response.json();
       setGroups(data);
     } catch (error) {
-      console.error("Error fetching groups:", error);
+      console.error(error);
     }
   };
 
@@ -53,117 +45,77 @@ const GroupParticipantsPage = () => {
     }
   };
 
-  const handleCheckboxChange = (participantId) => {
+  const handleCheckboxChange = (id) => {
     setSelectedParticipants((prev) =>
-      prev.includes(participantId)
-        ? prev.filter((id) => id !== participantId)
-        : [...prev, participantId]
+      prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
     );
   };
 
   const handleDeleteParticipants = async () => {
-    if (!selectedGroup) {
-      console.error("No group selected.");
+    if (!selectedGroup || selectedParticipants.length === 0) {
+      alert("Please select a group and at least one participant to delete.");
       return;
     }
-  
-    if (selectedParticipants.length === 0) {
-      console.error("No participants selected.");
-      return;
-    }
-  
+
     try {
-      for (const participantId of selectedParticipants) {
-        const deleteUrl = `${API_URL}/${participantId}`;
-        console.log(`Attempting DELETE: ${deleteUrl}`);
-  
-        console.log('participantId:', participantId);
-        await GroupParticipantsService.deleteParticipant(participantId);
-      }
-    try {
-      const participants = await fetchParticipants(selectedGroup); // Refresh list
-      console.log(participants)
-      setSelectedParticipants([]); // Clear selection
-      } catch (error) {
-        console.log("Error updating list")
-      }
+      await Promise.all(
+        selectedParticipants.map((participantId) =>
+          GroupParticipantsService.deleteParticipant(participantId)
+        )
+      );
+      fetchParticipants(selectedGroup);
+      setSelectedParticipants([]);
     } catch (error) {
       console.error("Error deleting participants:", error);
     }
   };
-  
-
-
 
   const fetchAllUsers = async () => {
     if (!selectedGroup) {
-      console.error("Please select a group first.");
+      alert("Please select a group first.");
       return;
     }
-  
+
     try {
-      const data = await GroupParticipantsService.getAllUsers(selectedGroup); // Pass the selectedGroup
+      const data = await GroupParticipantsService.getAllUsers(selectedGroup);
       setAllUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
+  const handleAddParticipant = async () => {
+    if (!selectedGroup || !newParticipant) {
+      alert("Please select a group and a participant.");
+      return;
+    }
 
-   // Add Participant: First fetch the list of all users
-//    const handleAddParticipant = async () => {
-//     if (!newParticipant) return;
-
-//     try {
-//       // Fetch all users before adding the participant
-//       const users = await GroupParticipantsService.getAllUsers();
-//       setAllUsers(users);  // Set the list of all users
-//       // Now perform the add operation after users are fetched
-//       await GroupParticipantsService.addParticipant(selectedGroup, newParticipant);
-//       fetchParticipants(selectedGroup);  // Refresh the participants list
-//       setNewParticipant(""); // Clear the selected participant
-//     } catch (error) {
-//       console.error("Error adding participant:", error);
-//     }
-//   };
-
-
-const handleAddParticipant = async () => {
-  if (!selectedGroup) {
-    console.error("No group selected.");
-    return;
-  }
-  if (!newParticipant) {
-    console.error("No participant selected.");
-    return;
-  }
-
-  const payload = {
-    group_id: selectedGroup,
-    participant_user_id: newParticipant,
+    try {
+      await GroupParticipantsService.addParticipant(selectedGroup, newParticipant);
+      fetchParticipants(selectedGroup);
+      setNewParticipant("");
+    } catch (error) {
+      console.error("Error adding participant:", error);
+    }
   };
 
-  console.log("Adding participant:", payload);
-
-  try {
-    await GroupParticipantsService.addParticipant(selectedGroup, newParticipant);
-    await fetchParticipants(selectedGroup); // Refresh the participants list
-    setNewParticipant(""); // Clear the selected participant
-  } catch (error) {
-    console.error("Error adding participant:", error);
-  }
-};
-
-
+  const handleNavigate = () => {
+    if (selectedGroup) {
+      navigate(`/SharedTransactionsPage/${selectedGroup}`);
+    } else {
+      alert("Please select a group first.");
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-4">Choose the Group</h1>
+    <div className="flex flex-col items-center p-6 bg-white dark:bg-gray-800">
+      <h1 className="text-3xl font-bold mb-4 text-black dark:text-white">Choose a Group</h1>
+
       <select
-        className="p-2 border rounded-lg mb-4"
+        className="p-2 border rounded-lg mb-4 bg-white dark:bg-gray-700 text-black dark:text-white"
         onChange={(e) => handleGroupChange(e.target.value)}
       >
-        <option key="default-group" value="">Select a Group</option>
+        <option value="">Select a Group</option>
         {groups.map((group) => (
           <option key={group.id} value={group.id}>
             {group.group_name}
@@ -171,9 +123,9 @@ const handleAddParticipant = async () => {
         ))}
       </select>
 
-      <h2 className="text-lg text-gray-600 mb-4">Below are the participants of the Group</h2>
+      <h2 className="text-lg text-gray-600 mb-4 dark:text-gray-300">Group Participants</h2>
 
-      <table className="w-full max-w-md border">
+      <table className="w-full max-w-md border text-black dark:text-white">
         <thead>
           <tr>
             <th className="border p-2">Name</th>
@@ -203,18 +155,17 @@ const handleAddParticipant = async () => {
       <div className="mt-4 flex flex-col items-center">
         <button
           className="bg-green-600 text-white p-2 rounded-lg mb-2 hover:bg-green-700"
-          onClick={() => fetchAllUsers()}
+          onClick={fetchAllUsers}
         >
-          ADD
+          Add Participant
         </button>
+
         {allUsers.length > 0 && (
           <select
-            className="p-2 border rounded-lg mb-2"
+            className="p-2 border rounded-lg mb-2 bg-white dark:bg-gray-700 text-black dark:text-white"
             onChange={(e) => setNewParticipant(e.target.value)}
           >
-            <option key="default-participant" value="">
-              Select a participant
-            </option>
+            <option value="">Select a Participant</option>
             {allUsers.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.name}
@@ -228,7 +179,7 @@ const handleAddParticipant = async () => {
             className="bg-blue-600 text-white p-2 rounded-lg mb-2 hover:bg-blue-700"
             onClick={handleAddParticipant}
           >
-            Add Participant
+            Confirm Add
           </button>
         )}
       </div>
@@ -237,7 +188,7 @@ const handleAddParticipant = async () => {
         className="bg-red-600 text-white p-2 rounded-lg mb-2 hover:bg-red-700"
         onClick={handleDeleteParticipants}
       >
-        DELETE
+        Delete Selected Participants
       </button>
 
       <button

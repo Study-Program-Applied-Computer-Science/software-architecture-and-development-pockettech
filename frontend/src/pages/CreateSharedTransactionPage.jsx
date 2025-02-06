@@ -14,35 +14,23 @@ const CreateSharedTransactionPage = () => {
   const [description, setDescription] = useState("");
   const [transactionMode, setTransactionMode] = useState("");
   const [sharedTransaction, setSharedTransaction] = useState(true);
-  const [category, setCategory] = useState(0);
+  const [category, setCategory] = useState(1);
   const [amount, setAmount] = useState("");
-  const [currencyCode, setCurrencyCode] = useState(0);
+  const [currencyCode, setCurrencyCode] = useState(1);
 
-  useEffect(() => {
-    fetchCategories();
-    fetchUsers();
-    fetchCurrencies();
-  }, []);
+  // Hardcoded Categories
+  const categories = [
+    { id: 1, name: "Groceries" },
+    { id: 2, name: "Clothes" },
+    { id: 3, name: "Dining" },
+  ];
 
-  
-
-  const fetchCategories = async () => {
-    try {
-        const data = await getCategories();
-        setCategories(data);
-    } catch (error) {
-        console.error('Failed to fetch categories');
-    }
-  };
-
-const fetchCurrencies = async () => {
-    try {
-        const data = await getCurrencies();
-        setCurrencies(data);
-    } catch (error) {
-        console.error('Failed to fetch currencies');
-    }
-  };
+  // Hardcoded Currencies
+  const currencies = [
+    { code: 1, name: "USD" },
+    { code: 2, name: "INR" },
+    { code: 3, name: "EUR" },
+  ];
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,18 +47,17 @@ const fetchCurrencies = async () => {
       category: parseInt(category),
       amount: parseFloat(amount),
       currency_code: parseInt(currencyCode),
-      group_id: groupId, // ✅ Use the groupId from the URL
+      group_id: groupId,
     };
 
     try {
       const createdTransaction = await SharedTransactionsService.createSharedTransaction(newSharedTransaction);
 
-      // ✅ Log response in the expected JSON format
       console.log("Transaction Response:", JSON.stringify(createdTransaction, null, 2));
 
       if (createdTransaction) {
         alert("Shared Transaction Created Successfully");
-        navigate(`/SharedTransactionsPage/${groupId}`); // ✅ Redirect back with groupId
+        navigate(`/SharedTransactionsPage/${groupId}`);
       }
     } catch (error) {
       console.error("Error creating shared transaction:", error);
@@ -79,90 +66,47 @@ const fetchCurrencies = async () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 bg-white dark:bg-gray-900 text-black dark:text-white">
       <h1 className="text-3xl font-bold mb-4">Create New Shared Transaction</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         
-        <div>
-          <label className="block text-lg font-medium">Recording User ID</label>
-          <input
-            type="text"
-            value={recordingUserId}
-            onChange={(e) => setRecordingUserId(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Credit User ID</label>
-          <input
-            type="text"
-            value={creditUserId}
-            onChange={(e) => setCreditUserId(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Debit User ID</label>
-          <input
-            type="text"
-            value={debitUserId}
-            onChange={(e) => setDebitUserId(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Other Party</label>
-          <input
-            type="text"
-            value={otherParty}
-            onChange={(e) => setOtherParty(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Heading</label>
-          <input
-            type="text"
-            value={heading}
-            onChange={(e) => setHeading(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Transaction Mode</label>
-          <input
-            type="text"
-            value={transactionMode}
-            onChange={(e) => setTransactionMode(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
+        {[
+          { label: "Recording User ID", value: recordingUserId, setter: setRecordingUserId },
+          { label: "Credit User ID", value: creditUserId, setter: setCreditUserId },
+          { label: "Debit User ID", value: debitUserId, setter: setDebitUserId },
+          { label: "Other Party", value: otherParty, setter: setOtherParty },
+          { label: "Heading", value: heading, setter: setHeading },
+          { label: "Description", value: description, setter: setDescription, isTextArea: true },
+          { label: "Transaction Mode", value: transactionMode, setter: setTransactionMode },
+          { label: "Amount", value: amount, setter: setAmount, type: "number" }
+        ].map(({ label, value, setter, isTextArea, type = "text" }) => (
+          <div key={label}>
+            <label className="block text-lg font-medium">{label}</label>
+            {isTextArea ? (
+              <textarea
+                value={value}
+                onChange={(e) => setter(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md"
+              />
+            ) : (
+              <input
+                type={type}
+                value={value}
+                onChange={(e) => setter(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md"
+              />
+            )}
+          </div>
+        ))}
 
         <div>
           <label className="block text-lg font-medium">Shared Transaction</label>
           <select
             value={sharedTransaction}
             onChange={(e) => setSharedTransaction(e.target.value === "true")}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md"
           >
             <option value="true">Yes</option>
             <option value="false">No</option>
@@ -171,48 +115,47 @@ const fetchCurrencies = async () => {
 
         <div>
           <label className="block text-lg font-medium">Category</label>
-          <input
-            type="number"
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div>
-          <label className="block text-lg font-medium">Amount</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md"
+          >
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
           <label className="block text-lg font-medium">Currency Code</label>
-          <input
-            type="number"
+          <select
             value={currencyCode}
             onChange={(e) => setCurrencyCode(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white rounded-md"
+          >
+            {currencies.map((currency) => (
+              <option key={currency.code} value={currency.code}>
+                {currency.name} ({currency.code})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
           <label className="block text-lg font-medium">Group ID</label>
           <input
             type="text"
-            value={groupId} // ✅ Auto-fill from URL
-            readOnly // Prevent user from changing it
-            className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100"
+            value={groupId}
+            readOnly
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-md"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          className="w-full bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-800"
         >
           Create Shared Transaction
         </button>
