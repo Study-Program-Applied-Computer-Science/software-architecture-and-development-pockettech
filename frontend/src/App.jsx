@@ -6,13 +6,16 @@ import Dashboard from "./pages/Dashboard";
 import UserProfile from "./pages/UserProfile";
 import CreateUserPage from "./pages/CreateUserPage";
 import NotFound from "./pages/NotFound";
-
 import BudgetOverviewPage from "./pages/BudgetOverviewPage";
 import CreateBudgetPage from "./pages/CreateBudgetPage";
 import EditBudgetPage from "./pages/EditBudgetPage";
 import ExpenseList from "./pages/ExpenseList";
 import ExpenseForm from "./pages/ExpenseForm";
 import ExpenseView from "./pages/ExpenseView";
+import CreateGroupPage from "./pages/CreateGroupPage";
+import GroupParticipantsPage from "./pages/GroupParticipantsPage";
+import SharedTransactionsPage from "./pages/SharedTransactionsPage";
+import CreateSharedTransactionPage from "./pages/CreateSharedTransactionPage";
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem("user_id") !== null;
@@ -21,12 +24,6 @@ const ProtectedRoute = ({ children }) => {
   }
   return children;
 };
-
-import CreateGroupPage from "./pages/CreateGroupPage";
-import GroupParticipantsPage from "./pages/GroupParticipantsPage";
-import SharedTransactionsPage from "./pages/SharedTransactionsPage";
-import CreateSharedTransactionPage from "./pages/CreateSharedTransactionPage";
-
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -52,7 +49,6 @@ const App = () => {
 
   return (
     <Router>
-
       <Routes>
         {/* Public Routes - No Sidebar */}
         <Route 
@@ -71,109 +67,40 @@ const App = () => {
             </Layout>
           }
         />
-        
+
         {/* Protected Routes - With Sidebar */}
         <Route
-          path="/dashboard"
+          path="*"
           element={
             <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <Dashboard isDarkMode={isDarkMode} />
-              </ProtectedRoute>
+              <Routes>
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                
+                {/* Budget Routes */}
+                <Route path="/budget" element={<ProtectedRoute><BudgetOverviewPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/budget/create" element={<ProtectedRoute><CreateBudgetPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/budget/edit/:budgetId" element={<ProtectedRoute><EditBudgetPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                
+                {/* Expense Routes */}
+                <Route path="/expenses" element={<ProtectedRoute><ExpenseList isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/expenses/new" element={<ProtectedRoute><ExpenseForm isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/expenses/edit/:expenseId" element={<ProtectedRoute><ExpenseForm isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/expenses/:expenseId" element={<ProtectedRoute><ExpenseView isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                
+                {/* Group & Shared Transactions */}
+                <Route path="/CreateGroupPage" element={<ProtectedRoute><CreateGroupPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/GroupParticipantsPage" element={<ProtectedRoute><GroupParticipantsPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+                <Route path="/SharedTransactionsPage/:groupId" element={<ProtectedRoute><SharedTransactionsPage /></ProtectedRoute>} />
+                <Route path="/CreateSharedTransactionPage/:groupId" element={<ProtectedRoute><CreateSharedTransactionPage /></ProtectedRoute>} />
+                
+                {/* Catch-All Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </Layout>
           }
         />
-        <Route
-          path="/ExpenseList"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <ExpenseList isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/ExpenseForm"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <ExpenseForm isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/ExpenseView"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <ExpenseView isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/budget"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <BudgetOverviewPage isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/budget/create"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <CreateBudgetPage isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        <Route
-          path="/budget/edit/:budgetId"
-          element={
-            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-              <ProtectedRoute>
-                <EditBudgetPage isDarkMode={isDarkMode} />
-              </ProtectedRoute>
-            </Layout>
-          }
-        />
-        
-        {/* Catch-All */}
-          <Route path="/expenses" element={<ExpenseList isDarkMode={isDarkMode}/>} />
-          <Route path="/expenses/new" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
-          <Route path="/expenses/edit/:expenseId" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
-          <Route path="/expenses/:expenseId" element={<ExpenseView isDarkMode={isDarkMode}/>} />
-        <Route path="*" element={<NotFound />} />
       </Routes>
-
-      <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch}>
-        <Routes>
-          <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
-          <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
-          <Route path="/CreateGroupPage" element={<CreateGroupPage isDarkMode={isDarkMode} />} />
-          <Route path="/GroupParticipantsPage" element={<GroupParticipantsPage isDarkMode={isDarkMode} />} />
-          <Route path="/SharedTransactionsPage/:groupId" element={<SharedTransactionsPage />} />
-          <Route path="/CreateSharedTransactionPage/:groupId" element={<CreateSharedTransactionPage />} /> 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Layout>
-
     </Router>
   );
 };
