@@ -54,7 +54,7 @@ services:
       context: ./TransactionAnalysisService
     container_name: transaction_analysis_service
     ports:
-      - "8003:8003"
+      - "8006:8006"
     env_file:
       - ./TransactionAnalysisService/.env
     volumes:
