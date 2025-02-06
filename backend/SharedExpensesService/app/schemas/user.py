@@ -5,11 +5,12 @@ from typing import Optional
 
 class UserBase(BaseModel):
     name: str
-    country_id: uuid.UUID
+    country_id: int
     email_id: str
     password: str
     # phone_code: str
     phone_number: str
+    
 
 
 class UserCreate(UserBase):

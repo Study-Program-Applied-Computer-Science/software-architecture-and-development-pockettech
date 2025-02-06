@@ -7,13 +7,14 @@ from uuid import UUID
 from app.schemas.shared_group_participants import SharedGroupParticipantsCreate, SharedGroupParticipantsList
 from app.crud.shared_group import create_shared_group_participant, get_shared_group_participants_by_group_id, delete_shared_group_participant
 from app.crud import shared_group as crud 
-
-
+from app.schemas.user import UserResponse
+from app.crud.shared_group import get_all_users
+from typing import List
 
 router = APIRouter()
 
 #create a shared group
-@router.post("/shared_groups/", response_model=SharedGroup)
+@router.post("/shared_groups", response_model=SharedGroup)
 def create_shared_group_route(
     group: SharedGroupCreate, db: Session = Depends(get_db)
 ):
@@ -68,10 +69,24 @@ def get_shared_group_participants_route(group_id: UUID, db: Session = Depends(ge
 
 
 #delete shared group participant
-@router.delete("/{user_id}/{group_id}")
-def delete_shared_group_participant_route(user_id: UUID, group_id: UUID, db: Session = Depends(get_db)):
+# @router.delete("/{user_id}/{group_id}")
+# def delete_shared_group_participant_route(user_id: UUID, group_id: UUID, db: Session = Depends(get_db)):
+#     try:
+#         return delete_shared_group_participant(db, user_id, group_id)
+#     except Exception as e: 
+#         raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{id}")
+def delete_shared_group_participant_route(id: UUID, db: Session = Depends(get_db)):
     try:
-        return delete_shared_group_participant(db, user_id, group_id)
+        return delete_shared_group_participant(db, id)
     except Exception as e: 
         raise HTTPException(status_code=400, detail=str(e))
 
+
+
+# TODO: use User service to create the below
+
+@router.get("/users", response_model=list[UserResponse])
+def get_all_users_route(db: Session = Depends(get_db)):
+    return get_all_users(db)

@@ -12,6 +12,11 @@ from decimal import Decimal
 from app.schemas.transaction import TransactionCreate   
 from sqlalchemy import Numeric, Float
 from decimal import Decimal, ROUND_HALF_UP
+from app.models.shared_group import SharedGroup
+from app.models.user import User as User
+from app.models.transactionsCategory import TransactionsCategory
+from app.models.country import Country
+
 
 # TODO: use transaction service to create the transaction
 def create_transaction(db: Session, transaction_in: TransactionCreate) -> Transaction:
@@ -184,3 +189,47 @@ def get_transaction_by_group_user_id(
          SharedTransaction.group_id == group_id
     ).all()
     return shared_transactions
+
+# get names of uuids 
+def get_transactions_with_names(db: Session, group_user_id: UUID, group_id: UUID):
+    # Fetch shared transactions
+    shared_transactions = db.query(SharedTransaction).filter(
+        (SharedTransaction.group_user_id_main == group_user_id) |
+        (SharedTransaction.group_user_id_sub == group_user_id),
+        SharedTransaction.group_id == group_id
+    ).all()
+
+    # Fetch related names
+    group = db.query(SharedGroup.group_name).filter(SharedGroup.id == group_id).first()
+    
+    
+    # Construct the response
+    transactions_list = []
+    for transaction in shared_transactions:
+        transactions_list.append({
+            "id": transaction.id,
+            "transaction_id": transaction.transaction_id,
+            "group_name": group.group_name,
+            "group_id": group_id,
+            "group_user_name_main": get_user_name(db, transaction.group_user_id_main).name,
+            "group_user_id_main": transaction.group_user_id_main,
+            "group_user_name_sub": get_user_name(db, transaction.group_user_id_sub).name,
+            "group_user_id_sub": transaction.group_user_id_sub,
+            "repayment_transaction_id": transaction.repayment_transaction_id or None,
+            "share_value": transaction.share_value,
+            "payment_status": transaction.payment_status
+        })
+
+    return transactions_list
+
+
+def get_user_name(db: Session, user_id: UUID):
+    return db.query(User.name).filter(User.id == user_id).first()
+
+
+def get_all_currencies(db: Session):
+    return db.query(Country).all()
+
+  
+def get_all_categories(db: Session):
+    return db.query(TransactionsCategory).all()

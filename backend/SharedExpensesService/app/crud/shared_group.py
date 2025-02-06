@@ -5,18 +5,25 @@ from app.models.shared_group import SharedGroup
 from app.schemas.shared_group import SharedGroupCreate
 from app.models.shared_group_participants import SharedGroupParticipants
 from app.schemas.shared_group_participants import SharedGroupParticipantsCreate
-from app.models.user import User
+from app.models.user import User as User
 
 # create a shared group
 def create_shared_group(db: Session, group: SharedGroupCreate):
-    db_group = SharedGroup(
-        id=uuid4(), #not needed  
+    db_group = SharedGroup(  
         group_name=group.group_name
     )
     db.add(db_group)
     db.commit()
-    db.refresh(db_group) 
-    return db_group
+    db.refresh(db_group)
+    db_group_participant = create_shared_group_participant(db, participant=SharedGroupParticipants(
+        group_id=db_group.id,
+        participant_user_id=group.user_id
+     ))
+    db.add(db_group_participant)
+    db.commit()
+    db.refresh(db_group_participant)
+    #return db_group
+    return {"id": db_group.id, "group_name": db_group.group_name}
 
 # Get shared groups
 def get_shared_groups(db: Session):
@@ -61,14 +68,23 @@ def create_shared_group_participant(db: Session, participant: SharedGroupPartici
     return db_participant
 
 # Delete shared group participant
-def delete_shared_group_participant(db: Session, user_id: UUID, group_id: UUID):
+# def delete_shared_group_participant(db: Session, user_id: UUID, group_id: UUID):
+#     db_participant = db.query(SharedGroupParticipants
+#     ).filter(
+#         and_(
+#             SharedGroupParticipants.participant_user_id == user_id, 
+#             SharedGroupParticipants.group_id==group_id
+#             )
+#             ).first()
+#     if db_participant is None:
+#         return None
+#     db.delete(db_participant)
+#     db.commit()
+#     return db_participant
+
+def delete_shared_group_participant(db: Session, id: UUID):
     db_participant = db.query(SharedGroupParticipants
-    ).filter(
-        and_(
-            SharedGroupParticipants.participant_user_id == user_id, 
-            SharedGroupParticipants.group_id==group_id
-            )
-            ).first()
+    ).filter(SharedGroupParticipants.id == id).first()
     if db_participant is None:
         return None
     db.delete(db_participant)
@@ -117,3 +133,9 @@ def get_shared_group_participants_by_group_id(db: Session, group_id: UUID):
     print(result, type(result))
 
     return result
+
+#def get all users
+# TODO: use User service to create the below
+def get_all_users(db: Session) -> list[User]:
+    return db.query(User).all()
+

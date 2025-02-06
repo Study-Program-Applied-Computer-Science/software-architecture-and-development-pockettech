@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
-from typing import Optional
+from typing import Optional, List
 
 class SharedTransactionBase(BaseModel):
     transaction_id: UUID
@@ -34,6 +34,23 @@ class SharedTransactionCreate(BaseModel):
 
 class SharedTransaction(SharedTransactionBase):
     id: UUID
+
+    class Config:
+        orm_mode = True
+
+
+class SharedTransactionWithName(BaseModel):
+    id: UUID
+    transaction_id:UUID
+    group_name: str
+    group_id: UUID
+    group_user_name_main: str
+    group_user_id_main: UUID
+    group_user_name_sub: str
+    group_user_id_sub: UUID
+    repayment_transaction_id: Optional[UUID]
+    share_value: float
+    payment_status: int
 
     class Config:
         orm_mode = True

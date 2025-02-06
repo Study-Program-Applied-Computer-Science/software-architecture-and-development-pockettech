@@ -4,7 +4,6 @@ from app.routes import (
     shared_group,
     shared_transaction
 )
-
 from fastapi.middleware.cors import CORSMiddleware
 
 # Create the database tables if they don't exist
@@ -34,12 +33,12 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 
 # Include routers
 app.include_router(shared_group.router, prefix="/shared-group", tags=["SharedGroup"])
 app.include_router(shared_transaction.router, prefix="/shared-transaction", tags=["SharedTransaction"])
-# app.include_router(shared_group_participants.router, prefix="/shared-group-participants", tags=["SharedGroupParticipants"])
+# app.include_router(user.router, prefix="/users",tags=["User"])
 
