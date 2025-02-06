@@ -87,8 +87,8 @@ const BudgetForm = ({ initialData = null, onBudgetSaved, isDarkMode}) => {
   };
 
     const containerClass = isDarkMode
-    ? 'min-h-screen bg-gray-900 text-gray-100 p-6'
-    : 'min-h-screen bg-gray-50 text-gray-900 p-6';
+    ? 'min-h-screen bg-gray-900 text-gray-100 p-6 ml-64'
+    : 'min-h-screen bg-gray-50 text-gray-900 p-6 ml-64';
 
     const labelClass = 'block text-sm font-medium mb-1';
     const inputClass =
@@ -98,7 +98,7 @@ const BudgetForm = ({ initialData = null, onBudgetSaved, isDarkMode}) => {
 
     return (
         <div className={containerClass}>
-          <h2 className="text-2xl font-semibold mb-4">
+          <h2 className="text-2xl font-semibold mb-4 ">
             {initialData ? 'Edit Budget' : 'Create Budget'}
           </h2>
           {error && <div className="text-red-500 mb-2">{error}</div>}

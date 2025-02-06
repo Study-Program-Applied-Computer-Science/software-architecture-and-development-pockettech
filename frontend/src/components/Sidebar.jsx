@@ -33,7 +33,7 @@ const Sidebar = ({ isDarkMode }) => {
           Budget
         </NavLink>
         <NavLink
-          to="/shared-expense"
+          to="/CreateGroupPage"
           className={({ isActive }) =>
             `p-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "hover:bg-blue-300"}`
           }

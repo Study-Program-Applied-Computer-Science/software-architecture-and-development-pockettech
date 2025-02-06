@@ -40,7 +40,7 @@ const ExpenseList = ({ isDarkMode }) => {
     };
 
     return (
-        <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} p-4 min-h-screen`}>
+        <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} p-4 min-h-screen ml-64`}>
           <h2 className="text-2xl font-bold mb-4">Expenses</h2>
           <button
             onClick={() => navigate('/expenses/new')}

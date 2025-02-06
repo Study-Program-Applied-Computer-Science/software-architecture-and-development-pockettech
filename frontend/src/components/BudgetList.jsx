@@ -13,8 +13,8 @@ const BudgetList = ({ isDarkMode }) => {
   const navigate = useNavigate();
 
   const containerClass = isDarkMode
-    ? 'min-h-screen bg-gray-900 text-gray-100 p-4'
-    : 'min-h-screen bg-gray-100 text-gray-900 p-4';
+    ? 'min-h-screen bg-gray-900 text-gray-100 p-4 ml-64'
+    : 'min-h-screen bg-gray-100 text-gray-900 p-4 ml-64';
 
   const inputClass =
     'w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400';

@@ -130,7 +130,7 @@ const ExpenseForm = ({ onExpenseCreated, isDarkMode, showSharedExpense = false }
     return (
         <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
 
-            <button onClick={() => navigate('/expenses')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to Expense List</button>
+            <button onClick={() => navigate('/ExpenseList')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Back to Expense List</button>
             
             <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
                 <div className={`max-w-lg w-full mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md p-6`}>
