@@ -197,7 +197,13 @@ export default function Dashboard({ isDarkMode }) {
           {/* Pie Chart: Outcome Categories */}
           <div className="p-4">
             <h2 className="text-lg font-semibold">Outcome Categories</h2>
-
+            <div className="mt-4 h-60">
+              {loading ? (
+                <p className="text-center">Loading data...</p>
+              ) : categoryData.length > 0 ? (
+                <Pie data={pieChartData} options={pieChartOptions} />
+              ) : (
+                <p className="text-center">No categories found.</p>
               )}
             </div>
           </div>
