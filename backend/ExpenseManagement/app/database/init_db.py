@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.db.database import engine, SessionLocal
+from app.database.database import engine, SessionLocal
 from app.models.country import Country
 
 def init_db():
