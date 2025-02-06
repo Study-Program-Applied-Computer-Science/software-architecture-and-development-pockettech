@@ -3,10 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Example of dark mode styles */
 .dark {
-  background-color: #1a202c; /* Dark background */
-  color: white; /* Light text in dark mode */
+  background-color: #1a202c; 
+  color: white; 
 }
 
 .display-none {
@@ -17,7 +16,7 @@ body {
   
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin: 0;
-  background-color: #f9f9f9; /* Light mode background */
+  background-color: #f9f9f9; 
 }
 
 :root {

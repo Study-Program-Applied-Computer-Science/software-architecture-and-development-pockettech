@@ -1,30 +1,49 @@
 version: '3.8'
 
 services:
-  # user_login_service:
-  #   build:
-  #     context: ./UserLoginService
-  #   container_name: user_login_service
-  #   ports:
-  #     - "8002:8002"
-  #   env_file:
-  #     - ./UserLoginService/.env
-  #   volumes:
-  #     - ./UserLoginService:/app
-  #   depends_on:
-  #     - db
-
-  expense_management_service:
+  auth_service:
     build:
-      context: ./ExpenseManagement
-    container_name: expense_management_service
+      context: ./AuthService
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./AuthService/.env
+    volumes:
+      - ./common:/common/common
+      - ./AuthService:/app  
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+
+  user_login_service:
+    build:
+      context: ./UserLoginService
+    container_name: user_login_service
     ports:
       - "8005:8005"
     env_file:
-      - ./ExpenseManagement/.env
+      - ./UserService/.env
     volumes:
       - ./common:/common/common
-      - ./ExpenseManagement:/app
+      - ./UserService:/app
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+  
+  transaction_analysis_service:
+    build:
+      context: ./TransactionAnalysisService
+    container_name: transaction_analysis_service
+    ports:
+      - "8006:8006"
+    env_file:
+      - ./TransactionAnalysisService/.env
+    volumes:
+      - ./common:/common/common
+      - ./TransactionAnalysisService:/app
     environment:
       - PYTHONPATH=/app:/common
     depends_on:
@@ -43,7 +62,19 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql 
+      - ./db_init/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  frontend:
+    build:
+      context: ../frontend  # Path to your frontend project
+    container_name: frontend
+    ports:
+      - "5173:80"  # Expose port 5173 for local access
+    depends_on:
+      - transaction_analysis_service  # Ensure backend starts first
+    volumes:
+      - ./frontend:/app  # Optional: Only needed if developing
+    
 
 volumes:
   db_data:
