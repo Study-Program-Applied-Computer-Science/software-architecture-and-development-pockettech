@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."Country"
     CONSTRAINT "Country_pkey" PRIMARY KEY (id),
     CONSTRAINT "UNIQUE_COUNTRY_PHONE_CODE" UNIQUE (phone_code)
 );
-);
 
 DROP TABLE IF EXISTS "FinancePlanner"."User";
 
@@ -31,7 +30,6 @@ CREATE TABLE IF NOT EXISTS "FinancePlanner"."User"
         REFERENCES "FinancePlanner"."Country" (id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE RESTRICT
-);
 );
 
 DROP TABLE IF EXISTS "FinancePlanner"."TransactionsCategory";
