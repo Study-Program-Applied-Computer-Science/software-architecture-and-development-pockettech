@@ -159,20 +159,6 @@ export default function Dashboard({ isDarkMode }) {
         />
       </header>
 
-      {/* Top Cards */}
-      <div className="grid grid-cols-3 gap-6 mb-8">
-        {[
-          ["My Balance", "$12,345,789", "Card Holder: John Doe", "bg-purple-600"],
-          ["Income", "$45,741", "+0.5% last month", "bg-green-500"],
-          ["Expense", "$32,123", "-0.9% last month", "bg-red-500"],
-        ].map(([title, amount, description, bgColor], index) => (
-          <div key={index} className={`p-6 ${bgColor} text-white rounded-lg shadow-lg`}>
-            <h2 className="text-xl font-semibold">{title}</h2>
-            <p className="text-3xl font-bold mt-2">{amount}</p>
-            <p className="mt-1 text-sm">{description}</p>
-          </div>
-        ))}
-      </div>
 
       {/* Charts and Overview */}
       <div className={`p-6 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"} rounded-lg shadow-lg mb-8`}>

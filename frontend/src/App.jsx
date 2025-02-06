@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
 import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import CreateUserPage from "./pages/CreateUserPage";
-import CreateBudgetPage from './pages/CreateBudgetPage';
-import EditBudgetPage from './pages/EditBudgetPage';
-import BudgetOverviewPage from './pages/BudgetOverviewPage';
+import NotFound from "./pages/NotFound";
+import BudgetOverviewPage from "./pages/BudgetOverviewPage";
+import CreateBudgetPage from "./pages/CreateBudgetPage";
+import EditBudgetPage from "./pages/EditBudgetPage";
+
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem("user_id") !== null;
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -35,38 +41,82 @@ const App = () => {
   };
 
   return (
-    <Provider store={store}>
-      <Router>
-        <Routes>
-          {/* For login, use a layout that doesn't show the sidebar */}
-          <Route 
-            path="/" 
-            element={
-              <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={false}>
-                <LoginPage isDarkMode={isDarkMode} />
-              </Layout>
-            } 
-          />
-          {/* For dashboard, show the sidebar */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
-                <ProtectedRoute>
-                  <Dashboard isDarkMode={isDarkMode} />
-                </ProtectedRoute>
-              </Layout>
-            } 
-          />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/budget" element={<BudgetOverviewPage isDarkMode={isDarkMode}/>} />
-          <Route path="/budget/create" element={<CreateBudgetPage isDarkMode={isDarkMode}/>} />
-          <Route path="/budget/edit/:budgetId" element={<EditBudgetPage isDarkMode={isDarkMode}/>} />
-          {/* <Route path="/budget/new" element={<BudgetForm isDarkMode={isDarkMode}/>} />
-          <Route path="/budget/edit/:expenseId" element={<BudgetForm isDarkMode={isDarkMode}/>} /> */}
-        </Routes>
-      </Router>
-    </Provider>
+    <Router>
+      <Routes>
+        {/* Public Routes - No Sidebar */}
+        <Route 
+          path="/" 
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={false}>
+              <LoginPage isDarkMode={isDarkMode} />
+            </Layout>
+          }
+        />
+        <Route 
+          path="/create-user" 
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={false}>
+              <CreateUserPage />
+            </Layout>
+          }
+        />
+        
+        {/* Protected Routes - With Sidebar */}
+        <Route
+          path="/dashboard"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <Dashboard isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/budget"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <BudgetOverviewPage isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/budget/create"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <CreateBudgetPage isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/budget/edit/:budgetId"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <EditBudgetPage isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        
+        {/* Catch-All */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 };
 
