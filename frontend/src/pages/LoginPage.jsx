@@ -105,7 +105,7 @@ export default function LoginPage({ isDarkMode }) {
         <p className="text-sm text-center mt-4">
           Don’t have an account?{" "}
           <a
-            href="#"
+            href="/create-user"
             className={`${
               isDarkMode
                 ? "text-blue-400 hover:underline"
