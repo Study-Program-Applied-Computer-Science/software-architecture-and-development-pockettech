@@ -1,24 +1,38 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from app.db.database import engine, Base
 from app.routes import (
     shared_group,
     shared_transaction
 )
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
+from common.config.correlation import CorrelationIdMiddleware
+from common.config.logging import setup_logger
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+SERVICE_NAME = os.getenv("SERVICE_NAME")
+logger = setup_logger(SERVICE_NAME)
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-from fastapi import FastAPI
-
-app = FastAPI()
+app.add_middleware(CorrelationIdMiddleware)
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the API!"}
 
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."},
+    )
 
 @app.on_event("startup")
 async def list_routes():
