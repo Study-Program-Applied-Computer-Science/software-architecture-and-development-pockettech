@@ -14,7 +14,7 @@ const Sidebar = ({ isDarkMode }) => {
             `p-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "hover:bg-blue-300"}`
           }
         >
-          Dashboard
+          UserProfile
         </NavLink>
         <NavLink
           to="/dashboard"
