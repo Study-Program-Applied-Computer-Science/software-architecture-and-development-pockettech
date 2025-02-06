@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
-import { loginUser } from "../services/AuthService/authService"; // Assuming loginUser service is defined in a separate file
+import { useNavigate } from "react-router-dom"; 
+import { loginUser } from "../services/AuthService/authService"; 
 
 export default function LoginPage({ isDarkMode }) {
   const [email, setEmail] = useState("");
@@ -9,7 +9,7 @@ export default function LoginPage({ isDarkMode }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,8 +21,8 @@ export default function LoginPage({ isDarkMode }) {
       const data = await loginUser(email, password);
       setSuccess("Login successful!");
       console.log("Response Data:", data);
-      alert("Login successful!");
-      navigate("/dashboard"); // Navigate to the dashboard page on success
+      localStorage.setItem("user_id", data.id);
+      navigate("/ExpenseForm"); 
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.message || "Login failed. Please try again.");
@@ -105,7 +105,7 @@ export default function LoginPage({ isDarkMode }) {
         <p className="text-sm text-center mt-4">
           Don’t have an account?{" "}
           <a
-            href="#"
+            href="/create-user"
             className={`${
               isDarkMode
                 ? "text-blue-400 hover:underline"
