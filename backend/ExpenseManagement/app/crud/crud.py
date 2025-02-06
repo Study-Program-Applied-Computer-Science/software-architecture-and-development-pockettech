@@ -1,6 +1,16 @@
+from datetime import datetime
+from http.client import HTTPException
 import uuid
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
+
+import jwt
+from app.utils.jwt_rsa import create_access_token
+import requests
+from common.config.constants import USER_ROLES, EXPENSE_MANAGEMENT_SERVICE_ROLE
+from app.config import settings
+
+from common.utils.http_client import make_request
 
 # 1. Import your SQLAlchemy models
 from app.models.transaction import Transaction as TransactionModel
@@ -22,7 +32,27 @@ def get_countries(db: Session) -> list[CountryModel]:
     return db.query(CountryModel).all()
 
 def get_users(db: Session) -> list[UserModel]:
-    return db.query(UserModel).all()
+    expense_management_service_role = [EXPENSE_MANAGEMENT_SERVICE_ROLE]
+
+    expense_management_service_token_payload = {
+        "id": EXPENSE_MANAGEMENT_SERVICE_ROLE, 
+        "roles": expense_management_service_role,
+        "iat": int(datetime.now().timestamp())
+    }
+
+    expense_management_service_token = create_access_token(data=expense_management_service_token_payload)
+
+    headers = {"Authorization": f"Bearer {expense_management_service_token}"}
+
+    user_service_response = requests.get(f"{settings.user_login_service_url}", headers=headers)
+
+    if user_service_response.status_code != 200:
+        raise HTTPException(status_code=user_service_response.status_code, detail="Failed to fetch users")
+    
+    users = user_service_response.json()
+
+    return users
+
 
 def get_transactions(db: Session) -> list[TransactionModel]:
     """Retrieve all transactions."""
@@ -34,6 +64,7 @@ def get_transaction_by_id(db: Session, transaction_id: uuid.UUID) -> Transaction
 
 def get_transaction_by_user_id(db: Session, user_id: uuid.UUID) -> list[TransactionModel]:
     """Retrieve all transactions by a user."""
+    
     return db.query(TransactionModel).filter(
         or_(
             TransactionModel.recording_user_id == user_id,
@@ -103,6 +134,20 @@ def delete_transaction(db: Session, transaction_id: uuid.UUID) -> TransactionMod
     db.delete(db_transaction)
     db.commit()
     return db_transaction
+
+def get_transaction_by_category_id_user_id_start_date_end_date(db: Session, user_id: uuid.UUID, category_id: int, start_date, end_date) -> list[TransactionModel]:
+    return db.query(TransactionModel).filter(
+        and_(
+            or_(
+                TransactionModel.recording_user_id == user_id,
+                TransactionModel.credit_user_id == user_id,
+                TransactionModel.debit_user_id == user_id
+            ),
+            TransactionModel.category == category_id,
+            TransactionModel.timestamp >= start_date,
+            TransactionModel.timestamp <= end_date
+        )
+    ).all()
 
 
 # # ---------------------------------------------------------------------------------

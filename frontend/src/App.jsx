@@ -147,6 +147,10 @@ const App = () => {
         />
         
         {/* Catch-All */}
+          <Route path="/expenses" element={<ExpenseList isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/new" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/edit/:expenseId" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/:expenseId" element={<ExpenseView isDarkMode={isDarkMode}/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
