@@ -32,6 +32,38 @@ services:
       - PYTHONPATH=/app:/common
     depends_on:
       - db
+
+  expense_management_service:
+    build:
+      context: ./ExpenseManagement
+    container_name: expense_management_service
+    ports:
+      - "8005:8005"
+    env_file:
+      - ./ExpenseManagement/.env
+    volumes:
+      - ./common:/common/common
+      - ./ExpenseManagement:/app
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
+  
+  budgeting_service:
+    build:
+      context: ./BudgetingService
+    container_name: budgeting_service
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./BudgetingService/.env
+    volumes:
+      - ./common:/common/common
+      - ./BudgetingService:/app
+    environment:
+      - PYTHONPATH=/app:/common
+    depends_on:
+      - db
   
   transaction_analysis_service:
     build:

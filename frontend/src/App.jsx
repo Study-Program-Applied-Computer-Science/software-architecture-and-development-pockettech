@@ -17,6 +17,9 @@ const ProtectedRoute = ({ children }) => {
   }
   return children;
 };
+import ExpenseList from "./pages/ExpenseList";
+import ExpenseForm from "./pages/ExpenseForm";
+import ExpenseView from "./pages/ExpenseView";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -114,6 +117,10 @@ const App = () => {
         />
         
         {/* Catch-All */}
+          <Route path="/expenses" element={<ExpenseList isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/new" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/edit/:expenseId" element={<ExpenseForm isDarkMode={isDarkMode}/>} />
+          <Route path="/expenses/:expenseId" element={<ExpenseView isDarkMode={isDarkMode}/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
