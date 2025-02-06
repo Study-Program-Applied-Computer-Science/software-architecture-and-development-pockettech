@@ -5,9 +5,9 @@
 
 This is a finance management application with a **microservice architecture** that handles authentication, user management, and a **dashboard** service for displaying financial data. The project uses **FastAPI** for the backend and **React** for the frontend, with **PostgreSQL** as the database.
 
-## Setting Up the PostgreSQL Database
+## Setting Up the Application
 
-To set up the PostgreSQL database for this project, follow the steps specified in the [Documentation](./Documentation/Finance%20Planner%20Documentation.docx).
+To set up the Application for this project, follow the steps specified in the [Documentation](./Documentation/Finance%20Planner%20Documentation.docx).
 
 ### Prerequisites
 
