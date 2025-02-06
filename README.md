@@ -7,7 +7,7 @@ This is a finance management application with a **microservice architecture** th
 
 ## Setting Up the PostgreSQL Database
 
-To set up the PostgreSQL database for this project, follow the steps specified in the [Documentation](./Documentation/Finance%20Planner%20Documentation).
+To set up the PostgreSQL database for this project, follow the steps specified in the [Documentation](./Documentation/Finance%20Planner%20Documentation.docx).
 
 ### Prerequisites
 
