@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import BudgetOverviewPage from "./pages/BudgetOverviewPage";
 import CreateBudgetPage from "./pages/CreateBudgetPage";
 import EditBudgetPage from "./pages/EditBudgetPage";
+import ExpenseList from "./pages/ExpenseList";
+import ExpenseForm from "./pages/ExpenseForm";
+import ExpenseView from "./pages/ExpenseView";
 
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem("user_id") !== null;
@@ -68,6 +71,36 @@ const App = () => {
             <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
               <ProtectedRoute>
                 <Dashboard isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/ExpenseList"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <ExpenseList isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/ExpenseForm"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <ExpenseForm isDarkMode={isDarkMode} />
+              </ProtectedRoute>
+            </Layout>
+          }
+        />
+        <Route
+          path="/ExpenseView"
+          element={
+            <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch} showSidebar={true}>
+              <ProtectedRoute>
+                <ExpenseView isDarkMode={isDarkMode} />
               </ProtectedRoute>
             </Layout>
           }

@@ -22,7 +22,7 @@ export default function LoginPage({ isDarkMode }) {
       setSuccess("Login successful!");
       console.log("Response Data:", data);
       localStorage.setItem("user_id", data.id);
-      navigate("/dashboard"); 
+      navigate("/ExpenseForm"); 
     } catch (err) {
       console.error("Login failed:", err);
       setError(err.message || "Login failed. Please try again.");
