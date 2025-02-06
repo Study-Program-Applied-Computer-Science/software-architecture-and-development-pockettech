@@ -9,6 +9,8 @@ This is a finance management application with a **microservice architecture** th
 
 To set up the Application for this project, follow the steps specified in the [Documentation](./Documentation/Finance%20Planner%20Documentation.docx).
 
+OpenAPI (Swagger) documentation links are given in the documentation as well
+
 ### Prerequisites
 
 - Make sure you have **Docker Desktop** installed locally.
