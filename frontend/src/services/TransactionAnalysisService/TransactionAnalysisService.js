@@ -2,6 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://127.0.0.1:8006/transaction-analysis/transactions";
 
+
 /**
  * Fetch the last 10 transactions
  * @returns {Promise<Array>} - Array of last 10 transactions 
@@ -9,6 +10,7 @@ const BASE_URL = "http://127.0.0.1:8006/transaction-analysis/transactions";
 export const fetchLastTransactions = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/last-10`);
+
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -18,10 +20,12 @@ export const fetchLastTransactions = async () => {
 /**
  * Fetch transactions from the last week
  * @returns {Promise<Array>} - Array of transactions from the last week
+
  */
 export const fetchLastWeekTransactions = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/last-week`);
+
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -31,10 +35,12 @@ export const fetchLastWeekTransactions = async () => {
 /**
  * Fetch expenses grouped by category
  * @returns {Promise<Array>} - Array of category expenses
+
  */
 export const fetchExpensesByCategory = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/expenses-by-category`);
+
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -71,3 +77,4 @@ export const fetchCategorizeTransactions = async () => {
     throw error.response?.data || error;
   }
 };
+

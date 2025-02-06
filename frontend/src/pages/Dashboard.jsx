@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js";
 import {
@@ -9,15 +10,18 @@ import {
   fetchCategorizeTransactions,
 } from "../services/TransactionAnalysisService/TransactionAnalysisService";
 
+
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export default function Dashboard({ isDarkMode }) {
   const [transactions, setTransactions] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
+
   const [categoryData, setCategoryData] = useState([]);
   const [predictedSavings, setPredictedSavings] = useState(null);
   const [categorizationResult, setCategorizationResult] = useState(null);
+
   const [loading, setLoading] = useState(true);
 
   // Fetch latest transactions
@@ -45,6 +49,7 @@ export default function Dashboard({ isDarkMode }) {
         setLoading(false);
       }
     };
+
     fetchWeeklyTransactions();
   }, []);
 
@@ -52,12 +57,15 @@ export default function Dashboard({ isDarkMode }) {
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
+
         const data = await fetchExpensesByCategory();
+
         setCategoryData(data);
       } catch (error) {
         console.error("Error fetching category expenses:", error);
       }
     };
+
     fetchCategoryData();
   }, []);
 
@@ -94,6 +102,7 @@ export default function Dashboard({ isDarkMode }) {
 
   // Prepare chart data for the Bar chart (Weekly Spending)
   const barChartData = {
+
     labels: weeklyData.length
       ? weeklyData.map((txn) => new Date(txn.timestamp).toLocaleDateString())
       : [],
@@ -101,14 +110,18 @@ export default function Dashboard({ isDarkMode }) {
       {
         label: "Weekly Spending ($)",
         data: weeklyData.length ? weeklyData.map((txn) => txn.amount) : [],
+
         backgroundColor: isDarkMode ? "rgba(255, 159, 64, 0.6)" : "rgba(70, 62, 238, 0.6)",
         borderColor: isDarkMode ? "#ffffff" : "#00000021",
+
         borderWidth: 1,
       },
     ],
   };
 
+
   const barChartOptions = {
+
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -122,10 +135,12 @@ export default function Dashboard({ isDarkMode }) {
 
   // Prepare data for Pie chart (Outcome Categories)
   const pieChartData = {
+
     labels: categoryData.length ? categoryData.map((cat) => cat.category) : [],
     datasets: [
       {
         data: categoryData.length ? categoryData.map((cat) => cat.total_amount) : [],
+
         backgroundColor: [
           "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
@@ -133,7 +148,9 @@ export default function Dashboard({ isDarkMode }) {
           "rgba(75, 192, 192, 0.6)",
           "rgba(153, 102, 255, 0.6)",
           "rgba(255, 159, 64, 0.6)",
+
         ],
+
         borderColor: "#ffffff",
         borderWidth: 1,
       },
@@ -180,11 +197,7 @@ export default function Dashboard({ isDarkMode }) {
           {/* Pie Chart: Outcome Categories */}
           <div className="p-4">
             <h2 className="text-lg font-semibold">Outcome Categories</h2>
-            <div className="mt-4 h-60">
-              {categoryData.length > 0 ? (
-                <Pie data={pieChartData} options={pieChartOptions} />
-              ) : (
-                <p className="text-center">No category data available.</p>
+
               )}
             </div>
           </div>
@@ -205,6 +218,7 @@ export default function Dashboard({ isDarkMode }) {
 ) : (
   <p className="text-gray-500">No savings prediction available.</p>
 )}
+
           </div>
         </div>
 
