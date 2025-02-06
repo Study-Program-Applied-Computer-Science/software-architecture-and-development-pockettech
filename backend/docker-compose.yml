@@ -22,7 +22,7 @@ services:
       context: ./UserService
     container_name: user_login_service
     ports:
-      - "8002:8002"
+      - "8005:8005"
     env_file:
       - ./UserService/.env
     volumes:
@@ -55,6 +55,9 @@ services:
     env_file:
       - ./.env
     environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
