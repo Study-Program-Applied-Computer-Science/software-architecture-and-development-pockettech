@@ -4,7 +4,7 @@ from fastapi import FastAPI
 import uvicorn
 from app.routers.transactions import router as transaction_router
 from app.config import settings
-from app.routes.publicKeyRoute import router as public_key_router
+from app.routers.publicKeyRoute import router as public_key_router
 
 from app.database.init_db import init_db
 
