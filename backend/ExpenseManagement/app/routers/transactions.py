@@ -6,7 +6,7 @@ import requests
 
 from app.schemas import transaction, transactionsCategory, country, user
 from app.utils.verifyToken import verify_roles
-from backend.ExpenseManagement.app.utils.jwt_rsa import create_access_token
+from app.utils.jwt_rsa import create_access_token
 from common.config.constants import USER_ROLES, BUDGETING_SERVICE_ROLE, SHARED_EXPENSES_SERVICE_ROLE, EXPENSE_MANAGEMENT_SERVICE_ROLE, USER_LOGIN_SERVICE_URL
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.orm import Session
