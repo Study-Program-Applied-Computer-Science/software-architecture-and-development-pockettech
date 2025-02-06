@@ -23,7 +23,10 @@ services:
     env_file:
       - ./ExpenseManagement/.env
     volumes:
+      - ./common:/common/common
       - ./ExpenseManagement:/app
+    environment:
+      - PYTHONPATH=/app:/common
     depends_on:
       - db
 

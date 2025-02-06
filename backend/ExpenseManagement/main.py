@@ -3,12 +3,18 @@ import uuid
 from fastapi import FastAPI
 import uvicorn
 from app.routers.transactions import router as transaction_router
+from app.config import settings
+from app.routes.publicKeyRoute import router as public_key_router
+
+from app.database.init_db import init_db
 
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.database import Base, engine
 
 Base.metadata.create_all(bind=engine)
+
+init_db()
 
 app = FastAPI()
 
@@ -22,7 +28,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SERVICE_NAME = settings.service_name
+
 app.include_router(transaction_router, prefix="/transactions", tags=["transactions"])
+app.include_router(public_key_router)
 
 @app.get("/")
 def read_root():
