@@ -40,7 +40,7 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
 
 # CORS setup
 # Update as per frontend origin
-origins = ["http://localhost:3000"]  
+origins = ["http://localhost:5173"]  
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
