@@ -4,6 +4,10 @@ import Layout from "./Layout";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import CreateGroupPage from "./pages/CreateGroupPage";
+import GroupParticipantsPage from "./pages/GroupParticipantsPage";
+import SharedTransactionsPage from "./pages/SharedTransactionsPage";
+import CreateSharedTransactionPage from "./pages/CreateSharedTransactionPage";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -36,6 +40,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
           <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
+          <Route path="/CreateGroupPage" element={<CreateGroupPage isDarkMode={isDarkMode} />} />
+          <Route path="/GroupParticipantsPage" element={<GroupParticipantsPage isDarkMode={isDarkMode} />} />
+          <Route path="/SharedTransactionsPage/:groupId" element={<SharedTransactionsPage />} />
+          <Route path="/CreateSharedTransactionPage/:groupId" element={<CreateSharedTransactionPage />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
