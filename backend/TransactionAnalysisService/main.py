@@ -54,6 +54,6 @@ app.include_router(transaction_analysis_router, prefix="/transaction-analysis", 
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8006))  # Updated port to 8003
+    port = int(os.getenv("PORT", 8006))  # Updated port to 8006
     logger.info(f"Starting FastAPI service on port {port}")
     uvicorn.run(app, host="127.0.0.1", port=port)
