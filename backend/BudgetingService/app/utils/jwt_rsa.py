@@ -16,7 +16,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
         "alg": "RS256",
         "typ": "JWT",
         "kid": "1", 
-        "jku": "http://auth_service:8001/.well-known/jwks.json"  
+        "jku": "http://budgeting_service:8003/.well-known/jwks.json"  
     }
     to_encode = data.copy()
     to_encode.update({"exp": datetime.now() + expires_delta})
