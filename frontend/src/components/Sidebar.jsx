@@ -1,6 +1,5 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-
 const Sidebar = ({ isDarkMode }) => {
   return (
     <aside
@@ -9,6 +8,14 @@ const Sidebar = ({ isDarkMode }) => {
       }`}
     >
       <nav className="flex flex-col space-y-4">
+      <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            `p-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "hover:bg-blue-300"}`
+          }
+        >
+          Dashboard
+        </NavLink>
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
