@@ -33,22 +33,6 @@ services:
     depends_on:
       - db
   
-  budgeting_service:
-    build:
-      context: ./BudgetingService
-    container_name: budgeting_service
-    ports:
-      - "8003:8003"
-    env_file:
-      - ./BudgetingService/.env
-    volumes:
-      - ./common:/common/common
-      - ./BudgetingService:/app
-    environment:
-      - PYTHONPATH=/app:/common
-    depends_on:
-      - db
-      
   transaction_analysis_service:
     build:
       context: ./TransactionAnalysisService
