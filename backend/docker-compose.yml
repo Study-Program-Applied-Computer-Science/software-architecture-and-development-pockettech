@@ -85,7 +85,7 @@ services:
       context: ../frontend  # Path to your frontend project
     container_name: frontend
     ports:
-      - "3000:80"  # Expose port 3000 for local access
+      - "5173:80"  # Expose port 5173 for local access
     depends_on:
       - transaction_analysis_service  # Ensure backend starts first
     volumes:
