@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://127.0.0.1:8003/transaction-analysis/transactions";
+const BASE_URL = "http://127.0.0.1:8006/transaction-analysis/transactions";
 
 /**
  * Fetch the last 10 transactions
