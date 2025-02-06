@@ -81,22 +81,6 @@ services:
     depends_on:
       - db
 
-  expense_management_service:
-    build:
-      context: ./ExpenseManagement
-    container_name: expense_management_service
-    ports:
-      - "8004:8004"
-    env_file:
-      - ./ExpenseManagement/.env
-    volumes:
-      - ./common:/common/common
-      - ./ExpenseManagement:/app
-    environment:
-      - PYTHONPATH=/app:/common
-    depends_on:
-      - db    
-
   db:
     image: postgres:15
     container_name: finance_db
