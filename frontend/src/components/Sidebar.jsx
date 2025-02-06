@@ -41,7 +41,7 @@ const Sidebar = ({ isDarkMode }) => {
           Shared Expense
         </NavLink>
         <NavLink
-          to="/transaction"
+          to="/ExpenseList"
           className={({ isActive }) =>
             `p-2 rounded-md ${isActive ? "bg-blue-500 text-white" : "hover:bg-blue-300"}`
           }
