@@ -1,9 +1,7 @@
 from fastapi import FastAPI, Request
 from app.db.database import engine, Base
-from app.routes import (
-    shared_group,
-    shared_transaction
-)
+from app.db.init_db import init_db
+from app.routes import shared_group, shared_transaction
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +16,8 @@ SERVICE_NAME = os.getenv("SERVICE_NAME")
 logger = setup_logger(SERVICE_NAME)
 # Create the database tables if they don't exist
 Base.metadata.create_all(bind=engine)
+
+init_db()
 
 app = FastAPI()
 
