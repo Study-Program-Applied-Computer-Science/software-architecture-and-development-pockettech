@@ -8,8 +8,6 @@ from sqlalchemy import Float
 from app.schemas.transactionCategory import UserTransactionsCategoryResponse  # Import the response model
 import numpy as np
 
-
-
 # Fetch the last 10 transactions
 def get_last_10_transactions(db: Session):
     try:
@@ -85,7 +83,6 @@ def get_last_week_transactions(db: Session):
         raise
 
 # Fetch total expenses by category
-
 def get_expenses_by_category(db: Session):
     try:
         print("Fetching total expenses grouped by category...")
@@ -120,7 +117,6 @@ def get_expenses_by_category(db: Session):
         print(f"Error in get_expenses_by_category: {e}")
         raise
 
-
 # Predict future savings for a user
 def predict_savings(db: Session, user_id: str, months_to_predict: int = 3):
     try:
@@ -141,17 +137,23 @@ def predict_savings(db: Session, user_id: str, months_to_predict: int = 3):
         # Aggregate spending per month
         monthly_expenses = {}
         for txn in transactions:
-            month_key = txn.timestamp.strftime("%Y-%m")  # YYYY-MM format
+            # Use YYYY-MM format as the key
+            month_key = txn.timestamp.strftime("%Y-%m")
             monthly_expenses[month_key] = monthly_expenses.get(month_key, 0) + float(txn.amount)
 
-        # Convert to time series
-        expense_values = np.array(list(monthly_expenses.values()))
+        # Sort the keys to ensure correct chronological order
+        sorted_months = sorted(monthly_expenses.keys())
+        expense_values = np.array([monthly_expenses[k] for k in sorted_months])
         months = np.arange(len(expense_values))
 
-        # Predict using linear regression
+        # Ensure we have at least 2 data points for linear regression
+        if len(expense_values) < 2:
+            return {"error": "Insufficient transaction data for prediction."}
+
+        # Predict using linear regression (slope and intercept)
         slope, intercept = np.polyfit(months, expense_values, 1)
         predictions = {
-            f"Month {i+1}": round(intercept + slope * (len(months) + i), 2)
+            f"Month {i+1}": round(intercept + slope * (len(expense_values) + i), 2)
             for i in range(months_to_predict)
         }
 
@@ -160,7 +162,6 @@ def predict_savings(db: Session, user_id: str, months_to_predict: int = 3):
     except Exception as e:
         print(f"Error in predict_savings: {e}")
         return {"error": "Error in savings prediction."}
-
 
 # Categorize uncategorized transactions
 def categorize_transactions(db: Session):

@@ -194,17 +194,17 @@ export default function Dashboard({ isDarkMode }) {
         <div className="mt-8">
           <h2 className="text-lg font-semibold">Predicted Savings</h2>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow">
-            {predictedSavings ? (
-              <ul>
-                {Object.entries(predictedSavings.predicted_savings).map(([month, amount]) => (
-                  <li key={month}>
-                    <strong>{month}:</strong> ${amount}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500">No savings prediction available.</p>
-            )}
+          {predictedSavings && predictedSavings.predicted_savings && Object.keys(predictedSavings.predicted_savings).length > 0 ? (
+  <ul>
+    {Object.entries(predictedSavings.predicted_savings).map(([month, amount]) => (
+      <li key={month}>
+        <strong>{month}:</strong> ${amount}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p className="text-gray-500">No savings prediction available.</p>
+)}
           </div>
         </div>
 
@@ -212,7 +212,7 @@ export default function Dashboard({ isDarkMode }) {
         <div className="mt-8">
           <h2 className="text-lg font-semibold">Categorization Result</h2>
           <div className="mt-4 p-4 bg-gray-50 rounded-lg shadow">
-            {categorizationResult && !categorizationResult.error ? (
+            {categorizationResult && categorizationResult.categorized_transactions ? (
               <ul>
                 {categorizationResult.categorized_transactions.map((item) => (
                   <li key={item.id}>
