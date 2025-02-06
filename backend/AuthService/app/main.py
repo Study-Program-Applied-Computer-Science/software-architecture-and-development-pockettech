@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.routes.auth import router as auth_router
-from app.db.database import Base, engine
-
-Base.metadata.create_all(bind=engine)
+from app.routes.authRoute import router as auth_router
+from app.config import settings
+from app.routes.publicKeyRoute import router as public_key_router
+from common.config.correlation import CorrelationIdMiddleware
+from common.config.logging import setup_logger
 
 app = FastAPI()
 
 # CORS setup
-origins = ["http://localhost:3000"]  # Update as per frontend origin
+origins = ["http://localhost:5173"]  # Update as per frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -18,9 +18,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SERVICE_NAME = settings.service_name
+logger = setup_logger(SERVICE_NAME)
+
+# Add Correlation ID Middleware
+app.add_middleware(CorrelationIdMiddleware)
+
 # Include routers
-app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(public_key_router)
 
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to Finance Management API"}
+def root():
+    return {"message": "AuthService is up and running!"}
+
+for route in app.routes:
+    print(route)
+    print(f"Path: {route.path}, Name: {route.name}, Methods: {route.methods}")
