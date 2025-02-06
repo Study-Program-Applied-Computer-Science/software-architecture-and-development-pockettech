@@ -16,4 +16,5 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 
 def get_correlation_id():
     """Retrieve correlation ID from context variable."""
+
     return correlation_id_var.get()

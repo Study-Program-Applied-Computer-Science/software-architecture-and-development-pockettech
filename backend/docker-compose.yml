@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   auth_service:
     build:
       context: ./AuthService
@@ -81,6 +82,24 @@ services:
     depends_on:
       - db
 
+
+  shared_expenses_service:
+      build:
+        context: ./SharedExpensesService
+      container_name: shared_expenses_service
+      ports:
+        - "8004:8004"
+      env_file:
+        - ./SharedExpensesService/.env
+      volumes:
+        - ./common:/common/common
+        - ./SharedExpensesService:/app
+      environment:
+        - PYTHONPATH=/app:/common
+      depends_on:
+        - db
+  
+
   db:
     image: postgres:15
     container_name: finance_db
@@ -106,7 +125,7 @@ services:
       - transaction_analysis_service  # Ensure backend starts first
     volumes:
       - ./frontend:/app  # Optional: Only needed if developing
-    
+
 
 volumes:
   db_data:

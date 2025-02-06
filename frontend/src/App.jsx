@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import UserProfile from "./pages/UserProfile";
 import CreateUserPage from "./pages/CreateUserPage";
 import NotFound from "./pages/NotFound";
+
 import BudgetOverviewPage from "./pages/BudgetOverviewPage";
 import CreateBudgetPage from "./pages/CreateBudgetPage";
 import EditBudgetPage from "./pages/EditBudgetPage";
@@ -20,6 +21,12 @@ const ProtectedRoute = ({ children }) => {
   }
   return children;
 };
+
+import CreateGroupPage from "./pages/CreateGroupPage";
+import GroupParticipantsPage from "./pages/GroupParticipantsPage";
+import SharedTransactionsPage from "./pages/SharedTransactionsPage";
+import CreateSharedTransactionPage from "./pages/CreateSharedTransactionPage";
+
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -45,6 +52,7 @@ const App = () => {
 
   return (
     <Router>
+
       <Routes>
         {/* Public Routes - No Sidebar */}
         <Route 
@@ -153,6 +161,19 @@ const App = () => {
           <Route path="/expenses/:expenseId" element={<ExpenseView isDarkMode={isDarkMode}/>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+
+      <Layout isDarkMode={isDarkMode} themeSwitch={themeSwitch}>
+        <Routes>
+          <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
+          <Route path="/dashboard" element={<Dashboard isDarkMode={isDarkMode} />} />
+          <Route path="/CreateGroupPage" element={<CreateGroupPage isDarkMode={isDarkMode} />} />
+          <Route path="/GroupParticipantsPage" element={<GroupParticipantsPage isDarkMode={isDarkMode} />} />
+          <Route path="/SharedTransactionsPage/:groupId" element={<SharedTransactionsPage />} />
+          <Route path="/CreateSharedTransactionPage/:groupId" element={<CreateSharedTransactionPage />} /> 
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+
     </Router>
   );
 };
